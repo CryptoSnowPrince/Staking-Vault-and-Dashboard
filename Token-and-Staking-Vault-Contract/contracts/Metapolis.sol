@@ -400,6 +400,8 @@ contract MetaPolis is IBEP20, Auth {
     mapping (address => bool) isTimelockExempt;
     mapping (address => bool) isDividendExempt;
 
+    address public _stakingVault;       // staking vault contract address    
+
     uint256 liquidityFee    = 0;
     uint256 reflectionFee   = 4;
     uint256 marketingFee    = 6;
@@ -434,10 +436,11 @@ contract MetaPolis is IBEP20, Auth {
     //-------------------------------------------------------------------------
 
     event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
+    event LogStakingVaultChanged(address indexed stakingVault);
 
     modifier swapping() { inSwap = true; _; inSwap = false; }
 
-    constructor () Auth(msg.sender) {
+    constructor (address stakingVault) Auth(msg.sender) {
         router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
         // _allowances[address(this)][address(router)] = uint256(-1);
@@ -467,6 +470,8 @@ contract MetaPolis is IBEP20, Auth {
         marketingFeeReceiver = msg.sender;
 
         _balances[msg.sender] = _totalSupply;
+        _stakingVault = stakingVault;
+
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
@@ -511,6 +516,12 @@ contract MetaPolis is IBEP20, Auth {
     }
 
     function _transferFrom(address sender, address recipient, uint256 amount) internal returns (bool) {
+        // If the sender or recipient is staking Vault contract, they are exempted from fees. 
+        if ((sender == _stakingVault) || (recipient == _stakingVault))
+        {
+            return _basicTransfer(sender, recipient, amount);
+        }
+
         if(inSwap){ return _basicTransfer(sender, recipient, amount); }
 
         if(!authorizations[sender] && !authorizations[recipient]){
@@ -520,9 +531,8 @@ contract MetaPolis is IBEP20, Auth {
         // max wallet code
         if (!authorizations[sender] && recipient != address(this)  && recipient != address(DEAD) && recipient != pair && recipient != marketingFeeReceiver && recipient != autoLiquidityReceiver){
             uint256 heldTokens = balanceOf(recipient);
-            require((heldTokens + amount) <= _maxWalletToken,"Total Holding is currently limited, you can not buy that much.");}
-        
-
+            require((heldTokens + amount) <= _maxWalletToken,"Total Holding is currently limited, you can not buy that much.");
+        }
         
         // cooldown timer, so a bot doesnt do quick trades! 1min gap between 2 trades.
         if (sender == pair &&
@@ -531,7 +541,6 @@ contract MetaPolis is IBEP20, Auth {
             require(cooldownTimer[recipient] < block.timestamp,"Please wait for cooldown between buys");
             cooldownTimer[recipient] = block.timestamp + cooldownTimerInterval;
         }
-
 
         // Checks max transaction limit
         checkTxLimit(sender, amount);
@@ -596,7 +605,6 @@ contract MetaPolis is IBEP20, Auth {
         payable(marketingFeeReceiver).transfer(amountBNB * amountPercentage / 100);
     }
 
-
     // switch Trading
     function tradingStatus(bool _status) public onlyOwner {
         tradingOpen = _status;
@@ -653,7 +661,6 @@ contract MetaPolis is IBEP20, Auth {
             emit AutoLiquify(amountBNBLiquidity, amountToLiquify);
         }
     }
-
 
     function setTxLimit(uint256 amount) external authorized {
         _maxTxAmount = amount;
@@ -752,5 +759,14 @@ contract MetaPolis is IBEP20, Auth {
             try distributor.setShare(from, _balances[from]) {} catch {}
         }
     }
-
+    
+    /**
+     * @param stakingVault: new stakingVault contract address
+     * @return bool: if success, return true, else, return false.
+     */
+    function setStakingVault(address stakingVault) external onlyOwner returns(bool) {
+        _stakingVault = stakingVault;
+        emit LogStakingVaultChanged(stakingVault);
+        return true;
+    }
 }
