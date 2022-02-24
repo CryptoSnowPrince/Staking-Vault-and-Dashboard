@@ -1,0 +1,237 @@
+'npx hardhat compile --force' running
+Compiling 1 file with 0.8.7
+Generating typings for: 8 artifacts in dir: typechain for target: ethers-v5
+Successfully generated 17 typings!
+Solidity compilation finished successfully
+
+[91m
+MetaPolis.swapBack() (contracts/Metapolis.sol#611-655) sends eth to arbitrary user
+	Dangerous calls:
+	- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations[0m
+[91m
+Reentrancy in MetaPolis._transferFrom(address,address,uint256) (contracts/Metapolis.sol#513-561):
+	External calls:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountToSwap,0,path,address(this),block.timestamp) (contracts/Metapolis.sol#622-628)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	External calls sending eth:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	State variables written after the call(s):
+	- _balances[sender] = _balances[sender].sub(amount,Insufficient Balance) (contracts/Metapolis.sol#543)
+	- _balances[recipient] = _balances[recipient].add(amountReceived) (contracts/Metapolis.sol#546)
+	- amountReceived = takeFee(sender,amount) (contracts/Metapolis.sol#545)
+		- _balances[address(this)] = _balances[address(this)].add(feeAmount) (contracts/Metapolis.sol#581)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities[0m
+[91m
+DividendDistributor.distributeDividend(address) (contracts/Metapolis.sol#324-335) ignores return value by BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer[0m
+[93m
+Reentrancy in DividendDistributor.distributeDividend(address) (contracts/Metapolis.sol#324-335):
+	External calls:
+	- BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+	State variables written after the call(s):
+	- shares[shareholder].totalRealised = shares[shareholder].totalRealised.add(amount) (contracts/Metapolis.sol#332)
+	- shares[shareholder].totalExcluded = getCumulativeDividends(shares[shareholder].amount) (contracts/Metapolis.sol#333)
+Reentrancy in DividendDistributor.process(uint256) (contracts/Metapolis.sol#293-317):
+	External calls:
+	- distributeDividend(shareholders[currentIndex]) (contracts/Metapolis.sol#309)
+		- BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+	State variables written after the call(s):
+	- currentIndex ++ (contracts/Metapolis.sol#314)
+Reentrancy in DividendDistributor.setShare(address,uint256) (contracts/Metapolis.sol#257-271):
+	External calls:
+	- distributeDividend(shareholder) (contracts/Metapolis.sol#259)
+		- BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+	State variables written after the call(s):
+	- shares[shareholder].amount = amount (contracts/Metapolis.sol#269)
+	- shares[shareholder].totalExcluded = getCumulativeDividends(shares[shareholder].amount) (contracts/Metapolis.sol#270)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1[0m
+[93m
+MetaPolis.swapBack() (contracts/Metapolis.sol#611-655) ignores return value by router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return[0m
+[93m
+MetaPolis.swapBack().tmpSuccess (contracts/Metapolis.sol#639) is written in both
+	(tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+	tmpSuccess = false (contracts/Metapolis.sol#642)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#write-after-write[0m
+[92m
+DividendDistributor.setDistributionCriteria(uint256,uint256) (contracts/Metapolis.sol#252-255) should emit an event for: 
+	- minPeriod = _minPeriod (contracts/Metapolis.sol#253) 
+	- minDistribution = _minDistribution (contracts/Metapolis.sol#254) 
+MetaPolis.setTxLimit(uint256) (contracts/Metapolis.sol#658-660) should emit an event for: 
+	- _maxTxAmount = amount (contracts/Metapolis.sol#659) 
+MetaPolis.setFees(uint256,uint256,uint256,uint256) (contracts/Metapolis.sol#684-691) should emit an event for: 
+	- liquidityFee = _liquidityFee (contracts/Metapolis.sol#685) 
+	- reflectionFee = _reflectionFee (contracts/Metapolis.sol#686) 
+	- marketingFee = _marketingFee (contracts/Metapolis.sol#687) 
+	- totalFee = _liquidityFee.add(_reflectionFee).add(_marketingFee) (contracts/Metapolis.sol#688) 
+	- feeDenominator = _feeDenominator (contracts/Metapolis.sol#689) 
+MetaPolis.setSwapBackSettings(bool,uint256) (contracts/Metapolis.sol#698-701) should emit an event for: 
+	- swapThreshold = _amount (contracts/Metapolis.sol#700) 
+MetaPolis.setTargetLiquidity(uint256,uint256) (contracts/Metapolis.sol#703-706) should emit an event for: 
+	- targetLiquidity = _target (contracts/Metapolis.sol#704) 
+	- targetLiquidityDenominator = _denominator (contracts/Metapolis.sol#705) 
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-events-arithmetic[0m
+[92m
+Auth.transferOwnership(address).adr (contracts/Metapolis.sol#124) lacks a zero-check on :
+		- owner = adr (contracts/Metapolis.sol#125)
+MetaPolis.setFeeReceivers(address,address)._autoLiquidityReceiver (contracts/Metapolis.sol#693) lacks a zero-check on :
+		- autoLiquidityReceiver = _autoLiquidityReceiver (contracts/Metapolis.sol#694)
+MetaPolis.setFeeReceivers(address,address)._marketingFeeReceiver (contracts/Metapolis.sol#693) lacks a zero-check on :
+		- marketingFeeReceiver = _marketingFeeReceiver (contracts/Metapolis.sol#695)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation[0m
+[92m
+DividendDistributor.distributeDividend(address) (contracts/Metapolis.sol#324-335) has external calls inside a loop: BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+MetaPolis.airdrop(address,address[],uint256[]) (contracts/Metapolis.sol#731-754) has external calls inside a loop: distributor.setShare(addresses[i_scope_0],_balances[addresses[i_scope_0]]) (contracts/Metapolis.sol#746)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop[0m
+[92m
+Reentrancy in MetaPolis.constructor() (contracts/Metapolis.sol#440-471):
+	External calls:
+	- pair = IDEXFactory(router.factory()).createPair(WBNB,address(this)) (contracts/Metapolis.sol#442)
+	State variables written after the call(s):
+	- _allowances[address(this)][address(router)] = type()(uint256).max (contracts/Metapolis.sol#444)
+	- _balances[msg.sender] = _totalSupply (contracts/Metapolis.sol#469)
+	- autoLiquidityReceiver = DEAD (contracts/Metapolis.sol#466)
+	- distributor = new DividendDistributor(address(router)) (contracts/Metapolis.sol#446)
+	- isDividendExempt[pair] = true (contracts/Metapolis.sol#461)
+	- isDividendExempt[address(this)] = true (contracts/Metapolis.sol#462)
+	- isDividendExempt[DEAD] = true (contracts/Metapolis.sol#463)
+	- isFeeExempt[msg.sender] = true (contracts/Metapolis.sol#448)
+	- isTimelockExempt[msg.sender] = true (contracts/Metapolis.sol#452)
+	- isTimelockExempt[DEAD] = true (contracts/Metapolis.sol#453)
+	- isTimelockExempt[address(this)] = true (contracts/Metapolis.sol#454)
+	- isTxLimitExempt[msg.sender] = true (contracts/Metapolis.sol#449)
+	- marketingFeeReceiver = msg.sender (contracts/Metapolis.sol#467)
+Reentrancy in DividendDistributor.deposit() (contracts/Metapolis.sol#273-291):
+	External calls:
+	- router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: msg.value}(0,path,address(this),block.timestamp) (contracts/Metapolis.sol#280-285)
+	State variables written after the call(s):
+	- dividendsPerShare = dividendsPerShare.add(dividendsPerShareAccuracyFactor.mul(amount).div(totalShares)) (contracts/Metapolis.sol#290)
+	- totalDividends = totalDividends.add(amount) (contracts/Metapolis.sol#289)
+Reentrancy in DividendDistributor.distributeDividend(address) (contracts/Metapolis.sol#324-335):
+	External calls:
+	- BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+	State variables written after the call(s):
+	- shareholderClaims[shareholder] = block.timestamp (contracts/Metapolis.sol#331)
+Reentrancy in DividendDistributor.setShare(address,uint256) (contracts/Metapolis.sol#257-271):
+	External calls:
+	- distributeDividend(shareholder) (contracts/Metapolis.sol#259)
+		- BUSD.transfer(shareholder,amount) (contracts/Metapolis.sol#330)
+	State variables written after the call(s):
+	- addShareholder(shareholder) (contracts/Metapolis.sol#263)
+		- shareholderIndexes[shareholder] = shareholders.length (contracts/Metapolis.sol#357)
+	- removeShareholder(shareholder) (contracts/Metapolis.sol#265)
+		- shareholderIndexes[shareholders[shareholders.length - 1]] = shareholderIndexes[shareholder] (contracts/Metapolis.sol#363)
+	- addShareholder(shareholder) (contracts/Metapolis.sol#263)
+		- shareholders.push(shareholder) (contracts/Metapolis.sol#358)
+	- removeShareholder(shareholder) (contracts/Metapolis.sol#265)
+		- shareholders[shareholderIndexes[shareholder]] = shareholders[shareholders.length - 1] (contracts/Metapolis.sol#362)
+		- shareholders.pop() (contracts/Metapolis.sol#364)
+	- totalShares = totalShares.sub(shares[shareholder].amount).add(amount) (contracts/Metapolis.sol#268)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2[0m
+[92m
+Reentrancy in MetaPolis._transferFrom(address,address,uint256) (contracts/Metapolis.sol#513-561):
+	External calls:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountToSwap,0,path,address(this),block.timestamp) (contracts/Metapolis.sol#622-628)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	- distributor.setShare(sender,_balances[sender]) (contracts/Metapolis.sol#550)
+	- distributor.setShare(recipient,_balances[recipient]) (contracts/Metapolis.sol#554)
+	- distributor.process(distributorGas) (contracts/Metapolis.sol#557)
+	External calls sending eth:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	Event emitted after the call(s):
+	- Transfer(sender,recipient,amountReceived) (contracts/Metapolis.sol#559)
+Reentrancy in MetaPolis._transferFrom(address,address,uint256) (contracts/Metapolis.sol#513-561):
+	External calls:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountToSwap,0,path,address(this),block.timestamp) (contracts/Metapolis.sol#622-628)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	External calls sending eth:
+	- swapBack() (contracts/Metapolis.sol#540)
+		- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+		- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+		- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	Event emitted after the call(s):
+	- Transfer(sender,address(this),feeAmount) (contracts/Metapolis.sol#582)
+		- amountReceived = takeFee(sender,amount) (contracts/Metapolis.sol#545)
+Reentrancy in MetaPolis.constructor() (contracts/Metapolis.sol#440-471):
+	External calls:
+	- pair = IDEXFactory(router.factory()).createPair(WBNB,address(this)) (contracts/Metapolis.sol#442)
+	Event emitted after the call(s):
+	- Transfer(address(0),msg.sender,_totalSupply) (contracts/Metapolis.sol#470)
+Reentrancy in MetaPolis.swapBack() (contracts/Metapolis.sol#611-655):
+	External calls:
+	- router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountToSwap,0,path,address(this),block.timestamp) (contracts/Metapolis.sol#622-628)
+	- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+	- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+	- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	External calls sending eth:
+	- distributor.deposit{value: amountBNBReflection}() (contracts/Metapolis.sol#638)
+	- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+	- router.addLiquidityETH{value: amountBNBLiquidity}(address(this),amountToLiquify,0,0,autoLiquidityReceiver,block.timestamp) (contracts/Metapolis.sol#645-652)
+	Event emitted after the call(s):
+	- AutoLiquify(amountBNBLiquidity,amountToLiquify) (contracts/Metapolis.sol#653)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3[0m
+[92m
+DividendDistributor.shouldDistribute(address) (contracts/Metapolis.sol#319-322) uses timestamp for comparisons
+	Dangerous comparisons:
+	- shareholderClaims[shareholder] + minPeriod < block.timestamp && getUnpaidEarnings(shareholder) > minDistribution (contracts/Metapolis.sol#320-321)
+MetaPolis._transferFrom(address,address,uint256) (contracts/Metapolis.sol#513-561) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(cooldownTimer[recipient] < block.timestamp,Please wait for cooldown between buys) (contracts/Metapolis.sol#531)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp[0m
+[92m
+DividendDistributor.process(uint256) (contracts/Metapolis.sol#293-317) has costly operations inside a loop:
+	- currentIndex = 0 (contracts/Metapolis.sol#305)
+DividendDistributor.distributeDividend(address) (contracts/Metapolis.sol#324-335) has costly operations inside a loop:
+	- totalDistributed = totalDistributed.add(amount) (contracts/Metapolis.sol#329)
+DividendDistributor.process(uint256) (contracts/Metapolis.sol#293-317) has costly operations inside a loop:
+	- currentIndex ++ (contracts/Metapolis.sol#314)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop[0m
+[92m
+Low level call in MetaPolis.swapBack() (contracts/Metapolis.sol#611-655):
+	- (tmpSuccess) = address(marketingFeeReceiver).call{gas: 30000,value: amountBNBMarketing}() (contracts/Metapolis.sol#639)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+Variable IDEXRouter.addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256).amountADesired (contracts/Metapolis.sol#144) is too similar to IDEXRouter.addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256).amountBDesired (contracts/Metapolis.sol#145)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-are-too-similar[0m
+[92m
+MetaPolis.slitherConstructorVariables() (contracts/Metapolis.sol#368-756) uses literals with too many digits:
+	- distributorGas = 500000 (contracts/Metapolis.sol#421)
+MetaPolis.slitherConstructorConstantVariables() (contracts/Metapolis.sol#368-756) uses literals with too many digits:
+	- DEAD = 0x000000000000000000000000000000000000dEaD (contracts/Metapolis.sol#377)
+MetaPolis.slitherConstructorConstantVariables() (contracts/Metapolis.sol#368-756) uses literals with too many digits:
+	- ZERO = 0x0000000000000000000000000000000000000000 (contracts/Metapolis.sol#378)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits[0m
+[92m
+MetaPolis.BUSD (contracts/Metapolis.sol#375) is never used in MetaPolis (contracts/Metapolis.sol#368-756)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable[0m
+[92m
+DividendDistributor.dividendsPerShareAccuracyFactor (contracts/Metapolis.sol#226) should be constant
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant[0m
+[92m
+authorize(address) should be declared external:
+	- Auth.authorize(address) (contracts/Metapolis.sol#96-98)
+unauthorize(address) should be declared external:
+	- Auth.unauthorize(address) (contracts/Metapolis.sol#103-105)
+transferOwnership(address) should be declared external:
+	- Auth.transferOwnership(address) (contracts/Metapolis.sol#124-128)
+tradingStatus(bool) should be declared external:
+	- MetaPolis.tradingStatus(bool) (contracts/Metapolis.sol#601-603)
+cooldownEnabled(bool,uint8) should be declared external:
+	- MetaPolis.cooldownEnabled(bool,uint8) (contracts/Metapolis.sol#606-609)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external[0m
+. analyzed (8 contracts with 77 detectors), 70 result(s) found
