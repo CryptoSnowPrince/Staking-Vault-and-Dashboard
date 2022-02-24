@@ -194,14 +194,23 @@ contract DividendDistributor is IDividendDistributor {
 
     address _token;
 
+    //--------------------------------------
+    // Data structure
+    //--------------------------------------
+    
     struct Share {
         uint256 amount;
         uint256 totalExcluded;
         uint256 totalRealised;
     }
 
-    IBEP20 BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    address WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    //--------------------------------------
+    // State variables
+    //--------------------------------------
+    
+    IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    
     IDEXRouter router;
 
     address[] shareholders;
