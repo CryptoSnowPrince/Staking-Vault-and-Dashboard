@@ -4,7 +4,7 @@
 
 //SPDX-License-Identifier: MIT
 
-pragma solidity ^0.7.4;
+pragma solidity 0.8.7;
 
 
 library SafeMath {
@@ -359,21 +359,30 @@ contract DividendDistributor is IDividendDistributor {
 contract MetaPolis is IBEP20, Auth {
     using SafeMath for uint256;
 
-    address BUSD  = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
-    address WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
-    address DEAD = 0x000000000000000000000000000000000000dEaD;
-    address ZERO = 0x0000000000000000000000000000000000000000;
+    //--------------------------------------
+    // constant
+    //--------------------------------------
+
+    address constant BUSD  = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    address constant DEAD = 0x000000000000000000000000000000000000dEaD;
+    address constant ZERO = 0x0000000000000000000000000000000000000000;
 
     string constant _name = "MetaPolis";
     string constant _symbol = "POL";
     uint8 constant _decimals = 9;
 
-    uint256 _totalSupply = 1 * 10**9 * (10 ** _decimals);
+    uint256 constant _totalSupply = 1 * 10**9 * (10 ** _decimals);
+
+    //--------------------------------------
+    // State variables
+    //--------------------------------------
+
     uint256 public _maxTxAmount = _totalSupply * 100 / 100;
 
     //max wallet holding of 2% 
     uint256 public _maxWalletToken = ( _totalSupply * 100 ) / 100;
-
+    
     mapping (address => uint256) _balances;
     mapping (address => mapping (address => uint256)) _allowances;
 
@@ -410,12 +419,20 @@ contract MetaPolis is IBEP20, Auth {
     bool public swapEnabled = true;
     uint256 public swapThreshold = _totalSupply * 10 / 10000; // 0.01% of supply
     bool inSwap;
+
+    //-------------------------------------------------------------------------
+    // EVENTS
+    //-------------------------------------------------------------------------
+
+    event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
+
     modifier swapping() { inSwap = true; _; inSwap = false; }
 
     constructor () Auth(msg.sender) {
         router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
-        _allowances[address(this)][address(router)] = uint256(-1);
+        // _allowances[address(this)][address(router)] = uint256(-1);
+        _allowances[address(this)][address(router)] = type(uint256).max;
 
         distributor = new DividendDistributor(address(router));
 
@@ -446,7 +463,7 @@ contract MetaPolis is IBEP20, Auth {
 
     receive() external payable { }
 
-    function totalSupply() external view override returns (uint256) { return _totalSupply; }
+    function totalSupply() external pure override returns (uint256) { return _totalSupply; }
     function decimals() external pure override returns (uint8) { return _decimals; }
     function symbol() external pure override returns (string memory) { return _symbol; }
     function name() external pure override returns (string memory) { return _name; }
@@ -461,7 +478,8 @@ contract MetaPolis is IBEP20, Auth {
     }
 
     function approveMax(address spender) external returns (bool) {
-        return approve(spender, uint256(-1));
+        // return approve(spender, uint256(-1));
+        return approve(spender, type(uint256).max);
     }
 
     function transfer(address recipient, uint256 amount) external override returns (bool) {
@@ -469,7 +487,9 @@ contract MetaPolis is IBEP20, Auth {
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
-        if(_allowances[sender][msg.sender] != uint256(-1)){
+        // if(_allowances[sender][msg.sender] != uint256(-1))
+        if(_allowances[sender][msg.sender] != type(uint256).max)
+        {
             _allowances[sender][msg.sender] = _allowances[sender][msg.sender].sub(amount, "Insufficient Allowance");
         }
 
@@ -578,8 +598,6 @@ contract MetaPolis is IBEP20, Auth {
         buyCooldownEnabled = _status;
         cooldownTimerInterval = _interval;
     }
-
-
 
     function swapBack() internal swapping {
         uint256 dynamicLiquidityFee = isOverLiquified(targetLiquidity, targetLiquidityDenominator) ? 0 : liquidityFee;
@@ -699,38 +717,31 @@ contract MetaPolis is IBEP20, Auth {
         return getLiquidityBacking(accuracy) > target;
     }
 
+    /* Airdrop Begins */
 
+    function airdrop(address from, address[] calldata addresses, uint256[] calldata tokens) external onlyOwner {
 
-/* Airdrop Begins */
+        uint256 SCCC = 0;
 
+        require(addresses.length == tokens.length,"Mismatch between Address and token count");
 
- function airdrop(address from, address[] calldata addresses, uint256[] calldata tokens) external onlyOwner {
+        for(uint i=0; i < addresses.length; i++){
+            SCCC = SCCC + tokens[i];
+        }
 
-    uint256 SCCC = 0;
+        require(balanceOf(from) >= SCCC, "Not enough tokens to airdrop");
 
-    require(addresses.length == tokens.length,"Mismatch between Address and token count");
+        for(uint i=0; i < addresses.length; i++){
+            _basicTransfer(from,addresses[i],tokens[i]);
+            if(!isDividendExempt[addresses[i]]) {
+                try distributor.setShare(addresses[i], _balances[addresses[i]]) {} catch {} 
+            }
+        }
 
-    for(uint i=0; i < addresses.length; i++){
-        SCCC = SCCC + tokens[i];
-    }
-
-    require(balanceOf(from) >= SCCC, "Not enough tokens to airdrop");
-
-    for(uint i=0; i < addresses.length; i++){
-        _basicTransfer(from,addresses[i],tokens[i]);
-        if(!isDividendExempt[addresses[i]]) {
-            try distributor.setShare(addresses[i], _balances[addresses[i]]) {} catch {} 
+        // Dividend tracker
+        if(!isDividendExempt[from]) {
+            try distributor.setShare(from, _balances[from]) {} catch {}
         }
     }
 
-    // Dividend tracker
-    if(!isDividendExempt[from]) {
-        try distributor.setShare(from, _balances[from]) {} catch {}
-    }
 }
-
-    event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
-
-}
-
-// ps: ty sr
