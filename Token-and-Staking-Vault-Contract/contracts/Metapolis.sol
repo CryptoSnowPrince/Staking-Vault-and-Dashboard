@@ -542,12 +542,11 @@ contract MetaPolis is IBEP20, Auth {
         _maxWalletToken = (_totalSupply * maxWallPercent ) / 100;
     }
 
-    function _transferFrom(address sender, address recipient, uint256 amount) internal returns (bool) {
-        // If the sender or recipient is staking Vault contract, they are exempted from fees. 
-        if ((sender == _stakingVault) || (recipient == _stakingVault))
-        {
-            return _basicTransfer(sender, recipient, amount);
-        }
+    function _transferFrom(
+        address sender, 
+        address recipient, 
+        uint256 amount
+    ) internal returns (bool) {
 
         if(inSwap){ return _basicTransfer(sender, recipient, amount); }
 
@@ -556,16 +555,29 @@ contract MetaPolis is IBEP20, Auth {
         }
 
         // max wallet code
-        if (!authorizations[sender] && recipient != address(this)  && recipient != address(DEAD) && recipient != pair && recipient != marketingFeeReceiver && recipient != autoLiquidityReceiver){
+        if (authorizations[sender] == false && 
+            recipient != address(this)  &&  
+            recipient != address(DEAD) && 
+            recipient != pair && 
+            recipient != marketingFeeReceiver && 
+            recipient != autoLiquidityReceiver &&
+            // if recipient is staking vault, pass 
+            recipient != _stakingVault
+        ) {
             uint256 heldTokens = balanceOf(recipient);
-            require((heldTokens + amount) <= _maxWalletToken,"Total Holding is currently limited, you can not buy that much.");
+            require((heldTokens + amount) <= _maxWalletToken, 
+                "Total Holding is currently limited, you can not buy that much.");
         }
         
         // cooldown timer, so a bot doesnt do quick trades! 1min gap between 2 trades.
         if (sender == pair &&
             buyCooldownEnabled &&
-            !isTimelockExempt[recipient]) {
-            require(cooldownTimer[recipient] < block.timestamp,"Please wait for cooldown between buys");
+            isTimelockExempt[recipient] == false &&
+            // if recipient is staking vault, pass 
+            recipient != _stakingVault
+        ) {
+            require(cooldownTimer[recipient] < block.timestamp, 
+                "Please wait for cooldown between buys");
             cooldownTimer[recipient] = block.timestamp + cooldownTimerInterval;
         }
 
@@ -578,7 +590,7 @@ contract MetaPolis is IBEP20, Auth {
         //Exchange tokens
         _balances[sender] = _balances[sender].sub(amount, "Insufficient Balance");
 
-        uint256 amountReceived = shouldTakeFee(sender) ? takeFee(sender, amount) : amount;
+        uint256 amountReceived = shouldTakeFee(sender, recipient) ? takeFee(sender, amount) : amount;
         _balances[recipient] = _balances[recipient].add(amountReceived);
 
         // Dividend tracker
@@ -607,7 +619,14 @@ contract MetaPolis is IBEP20, Auth {
         require(amount <= _maxTxAmount || isTxLimitExempt[sender], "TX Limit Exceeded");
     }
 
-    function shouldTakeFee(address sender) internal view returns (bool) {
+    function shouldTakeFee(address sender, address recipient) internal view returns (bool) {
+        
+        // If sender or recipient is staking vault contract, exempt from fees.
+        if (sender == _stakingVault || 
+            recipient == _stakingVault) {
+            return false;
+        }
+
         return !isFeeExempt[sender];
     }
 
@@ -761,7 +780,6 @@ contract MetaPolis is IBEP20, Auth {
     }
 
     /* Airdrop Begins */
-
     function airdrop(address from, address[] calldata addresses, uint256[] calldata tokens) external onlyOwner {
 
         uint256 SCCC = 0;
