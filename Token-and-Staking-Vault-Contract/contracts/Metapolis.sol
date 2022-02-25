@@ -208,8 +208,13 @@ contract DividendDistributor is IDividendDistributor {
     // State variables
     //--------------------------------------
     
-    IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    // Testnet Address
+    IBEP20 constant BUSD = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
+    address constant WBNB = 0x094616F0BdFB0b526bD735Bf66Eca0Ad254ca81F;
+
+    // Mainnet Address
+    // IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    // address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
     
     IDEXRouter router;
 
@@ -245,7 +250,10 @@ contract DividendDistributor is IDividendDistributor {
     constructor (address _router) {
         router = _router != address(0)
             ? IDEXRouter(_router)
-            : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+            // Testnet pancake router address
+            : IDEXRouter(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+            // Mainnet pancake router address
+            // : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         _token = msg.sender;
     }
 
@@ -372,10 +380,17 @@ contract MetaPolis is IBEP20, Auth {
     // constant
     //--------------------------------------
 
-    address constant BUSD  = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
-    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    // Testnet Address
+    address constant BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
+    address constant WBNB = 0x094616F0BdFB0b526bD735Bf66Eca0Ad254ca81F;
     address constant DEAD = 0x000000000000000000000000000000000000dEaD;
     address constant ZERO = 0x0000000000000000000000000000000000000000;
+
+    // Mainnet Address
+    // address constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+    // address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    // address constant DEAD = 0x000000000000000000000000000000000000dEaD;
+    // address constant ZERO = 0x0000000000000000000000000000000000000000;
 
     string constant _name = "MetaPolis";
     string constant _symbol = "POL";
@@ -441,7 +456,13 @@ contract MetaPolis is IBEP20, Auth {
     modifier swapping() { inSwap = true; _; inSwap = false; }
 
     constructor (address stakingVault) Auth(msg.sender) {
-        router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E); // Pancakeswap Router v2
+
+        // Testnet pancake router address
+        router = IDEXRouter(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+        
+        // Mainnet pancake router address
+        // router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
         // _allowances[address(this)][address(router)] = uint256(-1);
         _allowances[address(this)][address(router)] = type(uint256).max;
