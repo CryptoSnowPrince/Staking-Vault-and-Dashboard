@@ -441,7 +441,7 @@ contract MetaPolis is IBEP20, Auth {
     modifier swapping() { inSwap = true; _; inSwap = false; }
 
     constructor (address stakingVault) Auth(msg.sender) {
-        router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E); // Pancakeswap Router v2
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
         // _allowances[address(this)][address(router)] = uint256(-1);
         _allowances[address(this)][address(router)] = type(uint256).max;
