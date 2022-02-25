@@ -392,8 +392,14 @@ contract MetaPolis is IBEP20, Auth {
     // address constant DEAD = 0x000000000000000000000000000000000000dEaD;
     // address constant ZERO = 0x0000000000000000000000000000000000000000;
 
-    string constant _name = "MetaPolis";
-    string constant _symbol = "POL";
+    // Mainnet Name and Symbol
+    // string constant _name = "MetaPolis";
+    // string constant _symbol = "POL";
+    
+    // Testnet Name and Symbol
+    string constant _name = "MetaPolis_test";
+    string constant _symbol = "POL_test_0";
+    
     uint8 constant _decimals = 9;
 
     uint256 constant _totalSupply = 1 * 10**9 * (10 ** _decimals);
