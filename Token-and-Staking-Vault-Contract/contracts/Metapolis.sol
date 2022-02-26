@@ -393,8 +393,8 @@ contract MetaPolis is IBEP20, Auth {
     // address constant ZERO = 0x0000000000000000000000000000000000000000;
 
     // Mainnet Name and Symbol
-    // string constant _name = "MetaPolis";
-    // string constant _symbol = "POL";
+    // string constant _name = "AnchorEarnBSC";
+    // string constant _symbol = "AEB";
     
     // Testnet Name and Symbol
     string constant _name = "MetaPolis_test";
