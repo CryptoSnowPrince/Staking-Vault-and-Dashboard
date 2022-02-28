@@ -59,8 +59,10 @@ contract StakingVault is Ownable {
 
     IERC20 public token_;
     uint8 public minStakingTime_;
-    uint8 public maxStakingTime_;    
+    uint8 public maxStakingTime_;
     mapping(address => UserInfo) userInfo;
+    uint256 public totalStakeAmount;
+    uint256 public deployedTime;
 
     //-------------------------------------------------------------------------
     // EVENTS
@@ -72,7 +74,7 @@ contract StakingVault is Ownable {
     event LogFallback(address indexed spender, uint256 amount);
     event LogClaimStakingReward(uint256 amount);
     event LogUnstakeAEB(uint256 amount, uint256 stakingReward);
-
+    event LogWithdraw(address indexed recipient, uint256 amount);
 
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -87,6 +89,8 @@ contract StakingVault is Ownable {
         token_ = IERC20(_token);
         minStakingTime_ = 10;
         maxStakingTime_ = 100;
+        totalStakeAmount = 0;
+        deployedTime = block.timestamp;
     }
 
     //-------------------------------------------------------------------------
@@ -108,6 +112,7 @@ contract StakingVault is Ownable {
 
         token_.transferFrom(msg.sender, address(this), _amount);
 
+        totalStakeAmount += _amount;
         userInfo[msg.sender].amount = _amount;
         userInfo[msg.sender].startStakeTime = block.timestamp;
         userInfo[msg.sender].endStakeTime = block.timestamp + _stakingTime * STAKING_TIME_UNIT;
@@ -134,9 +139,13 @@ contract StakingVault is Ownable {
             RewardRatePerBlockPerToken;
         userInfo[msg.sender].stakingRewarded += stakingReward;
         userInfo[msg.sender].lastClaimBlockNumber = block.number;
-        token_.transfer(msg.sender, stakingReward + amount);
+        require(token_.balanceOf(REWARD_TOKEN_WALLET) >= stakingReward, 
+            "Reward token is not enough.");
+        token_.transferFrom(REWARD_TOKEN_WALLET, msg.sender, stakingReward);
+        token_.transfer(msg.sender, amount);
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
-        require(sent == true, "Failed to send Ether");
+        require(sent == true, "Failed to send BNB");
+        totalStakeAmount -= amount;
 
         emit LogUnstakeAEB(amount, stakingReward);
     }
@@ -151,15 +160,25 @@ contract StakingVault is Ownable {
 
         userInfo[msg.sender].stakingRewarded += stakingReward;
         userInfo[msg.sender].lastClaimBlockNumber = block.number;
-        token_.transfer(msg.sender, stakingReward);
+        require(token_.balanceOf(REWARD_TOKEN_WALLET) >= stakingReward, 
+            "Reward token is not enough.");
+        token_.transferFrom(REWARD_TOKEN_WALLET, msg.sender, stakingReward);
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
-        require(sent == true, "Failed to send Ether");
+        require(sent == true, "Failed to send BNB");
 
         emit LogClaimStakingReward(stakingReward);
     }
 
+    function withdraw() external onlyOwner() {
+        uint256 amount = address(this).balance;
+        require(amount > 0, "Have not BNB");
+        (bool sent, ) = payable(msg.sender).call{value:amount}("");
+        require(sent == true, "Failed to send BNB");
+        emit LogWithdraw(msg.sender, amount);
+    }
+
     /**
-     * @notice  Function to receive Ether. msg.data must be empty
+     * @notice  Function to receive BNB. msg.data must be empty
      */
     receive() external payable {
         emit LogReceive(msg.sender, msg.value);

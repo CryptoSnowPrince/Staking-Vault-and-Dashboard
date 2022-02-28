@@ -424,6 +424,7 @@ contract MetaPolis is IBEP20, Auth {
     mapping (address => bool) isDividendExempt;
 
     address public _stakingVault;       // staking vault contract address    
+    address public _rewardWallet;       // reward wallet address    
 
     uint256 liquidityFee    = 0;
     uint256 reflectionFee   = 4;
@@ -460,10 +461,11 @@ contract MetaPolis is IBEP20, Auth {
 
     event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
     event LogStakingVaultChanged(address indexed stakingVault);
+    event LogRewardWalletChanged(address indexed rewardWallet);
 
     modifier swapping() { inSwap = true; _; inSwap = false; }
 
-    constructor (address stakingVault) Auth(msg.sender) {
+    constructor (address stakingVault, address rewardWallet) Auth(msg.sender) {
 
         // Testnet pancake router address
         router = IDEXRouter(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
@@ -490,6 +492,14 @@ contract MetaPolis is IBEP20, Auth {
         //isTxLimitExempt[_presaleContract] = true;
         //isDividendExempt[_presaleContract] = true;
 
+        // REWARD wallet for staking reward
+        require(rewardWallet != address(0), "Zero address");
+        _rewardWallet = rewardWallet;
+        isFeeExempt[_rewardWallet] = true;
+        isTxLimitExempt[_rewardWallet] = true;
+        isDividendExempt[_rewardWallet] = true;
+        isTimelockExempt[_rewardWallet] = true;
+
         isDividendExempt[pair] = true;
         isDividendExempt[address(this)] = true;
         isDividendExempt[DEAD] = true;
@@ -499,6 +509,7 @@ contract MetaPolis is IBEP20, Auth {
         marketingFeeReceiver = msg.sender;
 
         _balances[msg.sender] = _totalSupply;
+        require(stakingVault != address(0), "Zero address");
         _stakingVault = stakingVault;
 
         emit Transfer(address(0), msg.sender, _totalSupply);
@@ -809,11 +820,28 @@ contract MetaPolis is IBEP20, Auth {
     
     /**
      * @param stakingVault: new stakingVault contract address
-     * @return bool: if success, return true, else, return false.
      */
-    function setStakingVault(address stakingVault) external onlyOwner returns(bool) {
+    function setStakingVault(address stakingVault) external onlyOwner {
         _stakingVault = stakingVault;
         emit LogStakingVaultChanged(stakingVault);
-        return true;
+    }
+
+    function setRewardWalletAddress(address rewardWallet) external onlyOwner {
+        // REWARD wallet for staking reward
+        require(rewardWallet != address(0), "Zero address");
+
+        isFeeExempt[_rewardWallet] = false;
+        isTxLimitExempt[_rewardWallet] = false;
+        isDividendExempt[_rewardWallet] = false;
+        isTimelockExempt[_rewardWallet] = false;
+
+        _rewardWallet = rewardWallet;
+
+        isFeeExempt[_rewardWallet] = true;
+        isTxLimitExempt[_rewardWallet] = true;
+        isDividendExempt[_rewardWallet] = true;
+        isTimelockExempt[_rewardWallet] = true;
+
+        emit LogRewardWalletChanged(rewardWallet);
     }
 }
