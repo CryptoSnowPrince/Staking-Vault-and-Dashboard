@@ -22,8 +22,8 @@ async function main() {
   // console.log("Greeter deployed to:", greeter.address);
 
   // for only testnet
-  const StakingVault_addr = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
-  const RewardWallet_addr = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
+  const StakingVault_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
+  const RewardWallet_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
 
   const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
   const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
