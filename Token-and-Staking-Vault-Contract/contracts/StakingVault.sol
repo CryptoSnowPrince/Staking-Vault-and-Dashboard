@@ -198,6 +198,11 @@ contract StakingVault is Ownable {
         emit LogClaimStakingReward(stakingReward);
     }
 
+    function claimBusdReward() external {
+        require(userInfo_[msg.sender].amount > 0, "Have not staked token");
+        
+    }
+
     function withdraw(uint256 _busdAmount) external onlyOwner() {
         uint256 bnbAmount = address(this).balance;
         require(bnbAmount > 0, "Have not BNB");
