@@ -14,12 +14,31 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  // const Greeter = await ethers.getContractFactory("Greeter");
+  // const greeter = await Greeter.deploy("Hello, Hardhat!");
 
-  await greeter.deployed();
+  // await greeter.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  // console.log("Greeter deployed to:", greeter.address);
+
+  // for only testnet
+  const StakingVault_addr = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
+  const RewardWallet_addr = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
+
+  const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
+  const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
+
+  await anchorEarnBSC.deployed();
+
+  console.log("AnchorEarnBSC deployed to:", anchorEarnBSC.address);
+
+  const StakingVault = await ethers.getContractFactory("StakingVault");
+  const stakingVault = await StakingVault.deploy(anchorEarnBSC.address);
+
+  await stakingVault.deployed();
+
+  console.log("StakingVault deployed to:", stakingVault.address);
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
