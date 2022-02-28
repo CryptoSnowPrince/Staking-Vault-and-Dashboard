@@ -58,9 +58,9 @@ contract StakingVault is Ownable {
     //--------------------------------------
 
     IERC20 public token_;
-    uint8 public minStakingTime_;
-    uint8 public maxStakingTime_;
-    mapping(address => UserInfo) userInfo_;
+    uint16 public minStakingTime_;
+    uint16 public maxStakingTime_;
+    mapping(address => UserInfo) public userInfo_;
     uint256 public totalStakeAmount_;
     uint256 public accBusd_;
     uint256 public busdLastBalance_;
@@ -70,6 +70,8 @@ contract StakingVault is Ownable {
     //-------------------------------------------------------------------------
 
     event LogAEB(address indexed AEB);
+    event LogMinStakingTime(uint16 minStakingTime);
+    event LogMaxStakingTime(uint16 maxStakingTime);
     event LogStakeAEB(address indexed staker, uint256 amount);
     event LogUnstakeAEB(address indexed unStaker, uint256 amount, uint256 stakingReward, uint256 busdReward);
     event LogClaimStakingReward(address indexed claimer, uint256 stakingReward);
@@ -106,7 +108,20 @@ contract StakingVault is Ownable {
         emit LogAEB(_token);
     }
 
-    function stakeAEB(uint256 _amount, uint8 _stakingTime) external {
+    function setMinStakingTime(uint16 _minStakingTime) external onlyOwner {
+        require(_minStakingTime > 0, "Staking Time must be at least 1 days");
+        minStakingTime_ = _minStakingTime;
+        emit LogMinStakingTime(_minStakingTime);
+    }
+
+    function setMaxStakingTime(uint16 _maxStakingTime) external onlyOwner {
+        require(_maxStakingTime > minStakingTime_, 
+            "Maximum Staking Time must be greater than Minimum Staking Time");
+        maxStakingTime_ = _maxStakingTime;
+        emit LogMaxStakingTime(_maxStakingTime);   
+    }
+
+    function stakeAEB(uint256 _amount, uint16 _stakingTime) external {
         require(_stakingTime >= minStakingTime_, "Staking Time must be at least 10 days");
         require(_stakingTime <= maxStakingTime_, "Staking Time must be less than 100 days");
         require(_amount <= MAX_STAKE_AMOUNT_PER_USER, "Max stake amount per user overflow");
