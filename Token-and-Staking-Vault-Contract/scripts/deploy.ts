@@ -22,18 +22,21 @@ async function main() {
   // console.log("Greeter deployed to:", greeter.address);
 
   // for only testnet
-  const StakingVault_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
-  const RewardWallet_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
+  // const StakingVault_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
+  // const RewardWallet_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
 
-  const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
-  const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
+  // const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
+  // const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
 
-  await anchorEarnBSC.deployed();
+  // await anchorEarnBSC.deployed();
 
-  console.log("AnchorEarnBSC deployed to:", anchorEarnBSC.address);
+  // console.log("AnchorEarnBSC deployed to:", anchorEarnBSC.address);
+
+  const anchorEarnBSC_addr = "0x4c9E1b387Ae35db18Fe92dB94eD0BBe1A47A997d";
 
   const StakingVault = await ethers.getContractFactory("StakingVault");
-  const stakingVault = await StakingVault.deploy(anchorEarnBSC.address);
+  // const stakingVault = await StakingVault.deploy(anchorEarnBSC.address);
+  const stakingVault = await StakingVault.deploy(anchorEarnBSC_addr);
 
   await stakingVault.deployed();
 
