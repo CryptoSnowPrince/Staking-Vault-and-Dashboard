@@ -373,7 +373,7 @@ contract DividendDistributor is IDividendDistributor {
     }
 }
 
-contract MetaPolis is IBEP20, Auth {
+contract AnchorEarnBSC is IBEP20, Auth {
     using SafeMath for uint256;
 
     //--------------------------------------
