@@ -63,18 +63,20 @@ contract StakingVault is Ownable {
     mapping(address => UserInfo) userInfo_;
     uint256 public totalStakeAmount_;
     uint256 public accBusd_;
+    uint256 public busdLastBalance_;
 
     //-------------------------------------------------------------------------
     // EVENTS
     //-------------------------------------------------------------------------
 
     event LogAEB(address indexed AEB);
-    event LogStakeAEB(uint256 amount);
+    event LogStakeAEB(address indexed staker, uint256 amount);
+    event LogUnstakeAEB(address indexed unStaker, uint256 amount, uint256 stakingReward, uint256 busdReward);
+    event LogClaimStakingReward(address indexed claimer, uint256 stakingReward);
+    event LogClaimBusdReward(address indexed claimer, uint256 busdReward);
+    event LogWithdraw(address indexed withdrawer, uint256 bnbAmount, uint256 busdAmount);
     event LogReceive(address indexed spender, uint256 amount);
     event LogFallback(address indexed spender, uint256 amount);
-    event LogClaimStakingReward(uint256 amount);
-    event LogUnstakeAEB(uint256 amount, uint256 stakingReward);
-    event LogWithdraw(address indexed recipient, uint256 bnbAmount, uint256 busdAmount);
 
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -91,6 +93,7 @@ contract StakingVault is Ownable {
         maxStakingTime_ = 100;
         totalStakeAmount_ = 0;
         accBusd_ = 0;
+        busdLastBalance_ = 0;  
     }
 
     //-------------------------------------------------------------------------
@@ -110,7 +113,11 @@ contract StakingVault is Ownable {
         require(_amount <= token_.balanceOf(msg.sender), "Not enough AEB token to stake");
         require(userInfo_[msg.sender].amount == 0, "Already token is staked");
 
-        uint256 deltaBusd = BUSD.balanceOf(address(this));
+        uint256 busdBalance = BUSD.balanceOf(address(this));
+        uint256 deltaBusd = 0;
+        if (busdBalance > busdLastBalance_) {
+            deltaBusd = busdBalance - busdLastBalance_;
+        }
 
         token_.transferFrom(msg.sender, address(this), _amount);
 
@@ -120,13 +127,14 @@ contract StakingVault is Ownable {
         userInfo_[msg.sender].endStakeTime = block.timestamp + _stakingTime * STAKING_TIME_UNIT;
         userInfo_[msg.sender].lastClaimBlockNumber = block.number;
 
-        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+        deltaBusd += BUSD.balanceOf(address(this)) - busdBalance;
 
         if (deltaBusd > 0) {
             accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
         }
+        busdLastBalance_ = BUSD.balanceOf(address(this));
 
-        emit LogStakeAEB(_amount);
+        emit LogStakeAEB(msg.sender, _amount);
     }
 
     function unstakeAEB() external payable {
@@ -140,7 +148,11 @@ contract StakingVault is Ownable {
                 "Claim Fee is not enough");
         }
 
-        uint256 deltaBusd = BUSD.balanceOf(address(this));
+        uint256 busdBalance = BUSD.balanceOf(address(this));
+        uint256 deltaBusd = 0;
+        if (busdBalance > busdLastBalance_) {
+            deltaBusd = busdBalance - busdLastBalance_;
+        }
 
         uint256 amount = userInfo_[msg.sender].amount;
         userInfo_[msg.sender].amount = 0;
@@ -149,23 +161,35 @@ contract StakingVault is Ownable {
             RewardRatePerBlockPerToken;
         userInfo_[msg.sender].stakingRewarded += stakingReward;
         userInfo_[msg.sender].lastClaimBlockNumber = block.number;
+        
         require(token_.balanceOf(REWARD_TOKEN_WALLET) >= stakingReward, 
             "Reward token is not enough.");
+        
         token_.transferFrom(REWARD_TOKEN_WALLET, msg.sender, stakingReward);
         token_.transfer(msg.sender, amount);
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
         require(sent == true, "Failed to send BNB");
-        totalStakeAmount_ -= amount;
 
-        // busd reward
-
-        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+        deltaBusd += BUSD.balanceOf(address(this)) - busdBalance;
 
         if (deltaBusd > 0) {
             accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
         }
 
-        emit LogUnstakeAEB(amount, stakingReward);
+        totalStakeAmount_ -= amount;
+
+        // busd reward
+        uint256 busdReward = amount * accBusd_ / 1e8 - userInfo_[msg.sender].busdRewardDebt;
+
+        if (busdReward > BUSD.balanceOf(address(this))) {
+            busdReward = BUSD.balanceOf(address(this));
+        }
+        BUSD.transfer(msg.sender, busdReward);
+
+        userInfo_[msg.sender].busdRewardDebt += busdReward;
+        busdLastBalance_ = BUSD.balanceOf(address(this));
+
+        emit LogUnstakeAEB(msg.sender, amount, stakingReward, busdReward);
     }
 
     function claimStakingReward() external payable {
@@ -173,7 +197,11 @@ contract StakingVault is Ownable {
         require(msg.value >= (CLAIM_FEE * userInfo_[msg.sender].amount), 
             "Claim Fee is not enough");
 
-        uint256 deltaBusd = BUSD.balanceOf(address(this));
+        uint256 busdBalance = BUSD.balanceOf(address(this));
+        uint256 deltaBusd = 0;
+        if (busdBalance > busdLastBalance_) {
+            deltaBusd = busdBalance - busdLastBalance_;
+        }
 
         uint256 stakingReward = userInfo_[msg.sender].amount * 
             (block.number - userInfo_[msg.sender].lastClaimBlockNumber) / 
@@ -187,20 +215,39 @@ contract StakingVault is Ownable {
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
         require(sent == true, "Failed to send BNB");
 
-        // busd reward
-
-        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+        deltaBusd += BUSD.balanceOf(address(this)) - busdBalance;
 
         if (deltaBusd > 0) {
             accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
         }
+        busdLastBalance_ = BUSD.balanceOf(address(this));
 
-        emit LogClaimStakingReward(stakingReward);
+        emit LogClaimStakingReward(msg.sender, stakingReward);
     }
 
     function claimBusdReward() external {
         require(userInfo_[msg.sender].amount > 0, "Have not staked token");
-        
+
+        uint256 busdBalance = BUSD.balanceOf(address(this));
+        uint256 deltaBusd = 0;
+        if (busdBalance > busdLastBalance_) {
+            deltaBusd = busdBalance - busdLastBalance_;
+        }
+        if (deltaBusd > 0) {
+            accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
+        }
+
+        uint256 busdReward = userInfo_[msg.sender].amount * accBusd_ / 1e8 - userInfo_[msg.sender].busdRewardDebt;
+
+        if (busdReward > busdBalance) {
+            busdReward = busdBalance;
+        }
+        BUSD.transfer(msg.sender, busdReward);
+
+        userInfo_[msg.sender].busdRewardDebt += busdReward;
+        busdLastBalance_ = BUSD.balanceOf(address(this));
+
+        emit LogClaimBusdReward(msg.sender, busdReward);
     }
 
     function withdraw(uint256 _busdAmount) external onlyOwner() {
@@ -209,12 +256,22 @@ contract StakingVault is Ownable {
         (bool sent, ) = payable(msg.sender).call{value:bnbAmount}("");
         require(sent == true, "Failed to send BNB");
 
-        uint256 busdAmount = BUSD.balanceOf(address(this));
-        if (busdAmount < _busdAmount) {
-            BUSD.transfer(msg.sender, busdAmount);
-            emit LogWithdraw(msg.sender, bnbAmount, busdAmount);
+        uint256 busdBalance = BUSD.balanceOf(address(this));
+        uint256 deltaBusd = 0;
+        if (busdBalance > busdLastBalance_) {
+            deltaBusd = busdBalance - busdLastBalance_;
+        }
+        if (deltaBusd > 0) {
+            accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
+        }
+
+        if (busdBalance < _busdAmount) {
+            BUSD.transfer(msg.sender, busdBalance);
+            busdLastBalance_ = 0;
+            emit LogWithdraw(msg.sender, bnbAmount, busdBalance);
         } else {
             BUSD.transfer(msg.sender, _busdAmount);
+            busdLastBalance_ = busdBalance - _busdAmount;
             emit LogWithdraw(msg.sender, bnbAmount, _busdAmount);
         }
     }
