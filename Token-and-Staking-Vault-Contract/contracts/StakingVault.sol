@@ -33,13 +33,11 @@ contract StakingVault is Ownable {
     // Testnet Address
     IERC20 constant BUSD                            = IERC20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
     address payable constant TREASURY_WALLET        = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
-    address payable constant DEV_WALLET             = payable(0x701Bc387b92Da71D9b20cD6442dE826905962472);
     address constant REWARD_TOKEN_WALLET            = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
 
     // Mainnet Address
     // address constant BUSD                           = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
     // address payable constant TREASURY_WALLET        = payable();
-    // address payable constant DEV_WALLET             = payable();
     // address constant REWARD_TOKEN_WALLET            = ;
 
     uint256 constant CLAIM_FEE                      = 3 * 10**14;                                   // 0.0003 BNB
