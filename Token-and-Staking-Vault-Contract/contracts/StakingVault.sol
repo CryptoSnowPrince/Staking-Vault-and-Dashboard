@@ -23,7 +23,7 @@ contract StakingVault is Ownable {
         uint256 lastClaimBlockNumber;
         uint256 startStakeTime;         // stake starttime
         uint256 endStakeTime;           // stake endtime
-        uint256 busdRewarded;
+        uint256 busdRewardDebt;
     }
 
     //--------------------------------------
@@ -60,9 +60,9 @@ contract StakingVault is Ownable {
     IERC20 public token_;
     uint8 public minStakingTime_;
     uint8 public maxStakingTime_;
-    mapping(address => UserInfo) userInfo;
-    uint256 public totalStakeAmount;
-    uint256 public deployedTime;
+    mapping(address => UserInfo) userInfo_;
+    uint256 public totalStakeAmount_;
+    uint256 public accBusd_;
 
     //-------------------------------------------------------------------------
     // EVENTS
@@ -74,7 +74,7 @@ contract StakingVault is Ownable {
     event LogFallback(address indexed spender, uint256 amount);
     event LogClaimStakingReward(uint256 amount);
     event LogUnstakeAEB(uint256 amount, uint256 stakingReward);
-    event LogWithdraw(address indexed recipient, uint256 amount);
+    event LogWithdraw(address indexed recipient, uint256 bnbAmount, uint256 busdAmount);
 
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -89,8 +89,8 @@ contract StakingVault is Ownable {
         token_ = IERC20(_token);
         minStakingTime_ = 10;
         maxStakingTime_ = 100;
-        totalStakeAmount = 0;
-        deployedTime = block.timestamp;
+        totalStakeAmount_ = 0;
+        accBusd_ = 0;
     }
 
     //-------------------------------------------------------------------------
@@ -108,73 +108,110 @@ contract StakingVault is Ownable {
         require(_stakingTime <= maxStakingTime_, "Staking Time must be less than 100 days");
         require(_amount <= MAX_STAKE_AMOUNT_PER_USER, "Max stake amount per user overflow");
         require(_amount <= token_.balanceOf(msg.sender), "Not enough AEB token to stake");
-        require(userInfo[msg.sender].amount == 0, "Already token is staked");
+        require(userInfo_[msg.sender].amount == 0, "Already token is staked");
+
+        uint256 deltaBusd = BUSD.balanceOf(address(this));
 
         token_.transferFrom(msg.sender, address(this), _amount);
 
-        totalStakeAmount += _amount;
-        userInfo[msg.sender].amount = _amount;
-        userInfo[msg.sender].startStakeTime = block.timestamp;
-        userInfo[msg.sender].endStakeTime = block.timestamp + _stakingTime * STAKING_TIME_UNIT;
-        userInfo[msg.sender].lastClaimBlockNumber = block.number;
+        totalStakeAmount_ += _amount;
+        userInfo_[msg.sender].amount = _amount;
+        userInfo_[msg.sender].startStakeTime = block.timestamp;
+        userInfo_[msg.sender].endStakeTime = block.timestamp + _stakingTime * STAKING_TIME_UNIT;
+        userInfo_[msg.sender].lastClaimBlockNumber = block.number;
+
+        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+
+        if (deltaBusd > 0) {
+            accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
+        }
 
         emit LogStakeAEB(_amount);
     }
 
     function unstakeAEB() external payable {
-        require(userInfo[msg.sender].amount > 0, "Have not staked token");
-        if(block.timestamp < userInfo[msg.sender].endStakeTime)
+        require(userInfo_[msg.sender].amount > 0, "Have not staked token");
+        if(block.timestamp < userInfo_[msg.sender].endStakeTime)
         {
-            require(msg.value >= ((CLAIM_FEE + PENALTY_FEE) * userInfo[msg.sender].amount), 
+            require(msg.value >= ((CLAIM_FEE + PENALTY_FEE) * userInfo_[msg.sender].amount), 
                 "Fee for claim and Penalty is not enough");
         } else {
-            require(msg.value >= (CLAIM_FEE * userInfo[msg.sender].amount), 
+            require(msg.value >= (CLAIM_FEE * userInfo_[msg.sender].amount), 
                 "Claim Fee is not enough");
         }
 
-        uint256 amount = userInfo[msg.sender].amount;
-        userInfo[msg.sender].amount = 0;
+        uint256 deltaBusd = BUSD.balanceOf(address(this));
+
+        uint256 amount = userInfo_[msg.sender].amount;
+        userInfo_[msg.sender].amount = 0;
         uint256 stakingReward = amount * 
-            (block.number - userInfo[msg.sender].lastClaimBlockNumber) / 
+            (block.number - userInfo_[msg.sender].lastClaimBlockNumber) / 
             RewardRatePerBlockPerToken;
-        userInfo[msg.sender].stakingRewarded += stakingReward;
-        userInfo[msg.sender].lastClaimBlockNumber = block.number;
+        userInfo_[msg.sender].stakingRewarded += stakingReward;
+        userInfo_[msg.sender].lastClaimBlockNumber = block.number;
         require(token_.balanceOf(REWARD_TOKEN_WALLET) >= stakingReward, 
             "Reward token is not enough.");
         token_.transferFrom(REWARD_TOKEN_WALLET, msg.sender, stakingReward);
         token_.transfer(msg.sender, amount);
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
         require(sent == true, "Failed to send BNB");
-        totalStakeAmount -= amount;
+        totalStakeAmount_ -= amount;
+
+        // busd reward
+
+        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+
+        if (deltaBusd > 0) {
+            accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
+        }
 
         emit LogUnstakeAEB(amount, stakingReward);
     }
 
     function claimStakingReward() external payable {
-        require(userInfo[msg.sender].amount > 0, "Have not staked token");
-        require(msg.value >= (CLAIM_FEE * userInfo[msg.sender].amount), 
+        require(userInfo_[msg.sender].amount > 0, "Have not staked token");
+        require(msg.value >= (CLAIM_FEE * userInfo_[msg.sender].amount), 
             "Claim Fee is not enough");
-        uint256 stakingReward = userInfo[msg.sender].amount * 
-            (block.number - userInfo[msg.sender].lastClaimBlockNumber) / 
+
+        uint256 deltaBusd = BUSD.balanceOf(address(this));
+
+        uint256 stakingReward = userInfo_[msg.sender].amount * 
+            (block.number - userInfo_[msg.sender].lastClaimBlockNumber) / 
             RewardRatePerBlockPerToken;
 
-        userInfo[msg.sender].stakingRewarded += stakingReward;
-        userInfo[msg.sender].lastClaimBlockNumber = block.number;
+        userInfo_[msg.sender].stakingRewarded += stakingReward;
+        userInfo_[msg.sender].lastClaimBlockNumber = block.number;
         require(token_.balanceOf(REWARD_TOKEN_WALLET) >= stakingReward, 
             "Reward token is not enough.");
         token_.transferFrom(REWARD_TOKEN_WALLET, msg.sender, stakingReward);
         (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
         require(sent == true, "Failed to send BNB");
 
+        // busd reward
+
+        deltaBusd = BUSD.balanceOf(address(this)) - deltaBusd;
+
+        if (deltaBusd > 0) {
+            accBusd_ += deltaBusd * 1e8 / totalStakeAmount_;
+        }
+
         emit LogClaimStakingReward(stakingReward);
     }
 
-    function withdraw() external onlyOwner() {
-        uint256 amount = address(this).balance;
-        require(amount > 0, "Have not BNB");
-        (bool sent, ) = payable(msg.sender).call{value:amount}("");
+    function withdraw(uint256 _busdAmount) external onlyOwner() {
+        uint256 bnbAmount = address(this).balance;
+        require(bnbAmount > 0, "Have not BNB");
+        (bool sent, ) = payable(msg.sender).call{value:bnbAmount}("");
         require(sent == true, "Failed to send BNB");
-        emit LogWithdraw(msg.sender, amount);
+
+        uint256 busdAmount = BUSD.balanceOf(address(this));
+        if (busdAmount < _busdAmount) {
+            BUSD.transfer(msg.sender, busdAmount);
+            emit LogWithdraw(msg.sender, bnbAmount, busdAmount);
+        } else {
+            BUSD.transfer(msg.sender, _busdAmount);
+            emit LogWithdraw(msg.sender, bnbAmount, _busdAmount);
+        }
     }
 
     /**
