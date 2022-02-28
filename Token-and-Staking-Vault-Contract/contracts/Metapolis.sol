@@ -397,18 +397,20 @@ contract MetaPolis is IBEP20, Auth {
     // string constant _symbol = "AEB";
     
     // Testnet Name and Symbol
-    string constant _name = "MetaPolis_test";
-    string constant _symbol = "POL_test_0";
+    string constant _name = "AnchorEarnBSC_t";
+    string constant _symbol = "AEB_0";
     
     uint8 constant _decimals = 9;
 
-    uint256 constant _totalSupply = 1 * 10**9 * (10 ** _decimals);
+    // uint256 constant _totalSupply = 1 * 10**9 * (10 ** _decimals);
+    uint256 constant _totalSupply = 1 * 10**8 * (10 ** _decimals);
 
     //--------------------------------------
     // State variables
     //--------------------------------------
 
-    uint256 public _maxTxAmount = _totalSupply * 100 / 100;
+    // uint256 public _maxTxAmount = _totalSupply * 100 / 100;
+    uint256 public _maxTxAmount = _totalSupply / 5000;
 
     //max wallet holding of 2% 
     uint256 public _maxWalletToken = ( _totalSupply * 100 ) / 100;
@@ -449,7 +451,7 @@ contract MetaPolis is IBEP20, Auth {
     mapping (address => uint) private cooldownTimer;
 
     bool public swapEnabled = true;
-    uint256 public swapThreshold = _totalSupply * 10 / 10000; // 0.01% of supply
+    uint256 public swapThreshold = _totalSupply * 10 / 10000; // 0.1% of supply
     bool inSwap;
 
     //-------------------------------------------------------------------------
