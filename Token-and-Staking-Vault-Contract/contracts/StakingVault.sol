@@ -137,6 +137,8 @@ contract StakingVault is Ownable {
         userInfo[msg.sender].stakingRewarded += stakingReward;
         userInfo[msg.sender].lastClaimBlockNumber = block.number;
         token_.transfer(msg.sender, stakingReward + amount);
+        (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
+        require(sent == true, "Failed to send Ether");
 
         emit LogUnstakeAEB(amount, stakingReward);
     }
@@ -152,6 +154,8 @@ contract StakingVault is Ownable {
         userInfo[msg.sender].stakingRewarded += stakingReward;
         userInfo[msg.sender].lastClaimBlockNumber = block.number;
         token_.transfer(msg.sender, stakingReward);
+        (bool sent, ) = TREASURY_WALLET.call{value: msg.value}("");
+        require(sent == true, "Failed to send Ether");
 
         emit LogClaimStakingReward(stakingReward);
     }
