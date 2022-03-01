@@ -1,8 +1,25 @@
+@font-face {
+  font-family: "Poppins";
+  src: local("Poppins"), url(./assets/fonts/Poppins-Regular.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "DejaVuSans";
+  src: local("DejaVuSans"), url(./assets/fonts/DejaVuSans.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "DejaVuSansBold";
+  src: local("DejaVuSansBold"), url(./assets/fonts/DejaVuSans-Bold.ttf) format("truetype");
+}
+
+html {
+  font-size: calc(60% + 0.8vmin);
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Poppins';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

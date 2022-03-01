@@ -1,0 +1,241 @@
+.header {
+  display: flex;
+  align-items: center;
+}
+.header-connect-wallet-btn {
+  background-color: #545454;
+  color: black;
+  padding: 0.8rem;
+  border-radius: 3rem;
+  border: 0;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+}
+.logo {
+  width: 100px;
+}
+.left-block {
+  width: 400px;
+  color: white;
+  font-family: Poppins;
+  font-size: 1.8rem;
+  background-image: radial-gradient(
+      farthest-corner at 50% 80vh,
+      transparent 0%,
+      #000000 100%
+    ),
+    url("./assets/images/tile.png");
+}
+.right-block {
+  width: calc(100% - 400px);
+  background-color: #fdb759;
+  height: 100vh;
+  padding: 1rem;
+}
+.content-left-block {
+  flex: 2;
+}
+.content-right-block {
+  flex: 1;
+}
+.left-title {
+  font-size: 2rem;
+  line-height: 2rem;
+}
+.title {
+  font-size: 4rem;
+  line-height: 4rem;
+}
+.title-first {
+  font-family: DejaVuSansBold;
+}
+.title-second {
+  font-family: DejaVuSans;
+}
+.content {
+  background-image: url("./assets/images/content-border.png");
+  background-size: 100% 100%;
+  padding: 3rem 6rem;
+}
+.content-title {
+  font-family: Poppins;
+  font-weight: 900;
+  font-size: 2rem;
+}
+.content-left-block {
+  font-family: Poppins;
+  font-size: 1.5rem;
+}
+.amount-input {
+  background-image: url("./assets/images/input-border.png");
+  background-size: 100% 100%;
+  padding: 0.5rem;
+  border: 0;
+  background-color: #fdb759;
+  margin-right: 0.7rem;
+}
+.amount-input:focus,
+.amount-input:focus-visible {
+  border: 0;
+  outline: 0;
+}
+.max-button {
+  right: 1.5rem;
+  top: 0.5rem;
+  cursor: pointer;
+}
+.content-right-block {
+  color: white;
+  font-family: Poppins;
+  font-size: 1.8rem;
+}
+.primary-button {
+  background-color: #000;
+  color: #fdb759;
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: 0;
+}
+.input-range__track--active {
+  background: black !important;
+}
+.input-range__slider {
+  background: black !important;
+  border: 0 !important;
+}
+@media (max-width: 1600px) {
+  .left-block {
+    width: 300px;
+  }
+  .left-title {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+}
+@media (max-width: 1400px) {
+  .left-block {
+    width: 300px;
+    font-size: 1rem;
+  }
+  .left-title {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .right-block {
+    width: 100%;
+  }
+  .content {
+    padding: 1rem 2rem;
+  }
+  .left-title{
+    font-size: 1.2rem;
+    line-height: 1.2rem;
+  }
+  .title {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+  }
+  .header-connect-wallet-btn {
+    padding: 0.5rem;
+    border-radius: 3rem;
+    border: 0;
+    margin-right: 1rem;
+    font-size: 1.3rem;
+  }
+  .content-left-block, .content-right-block{
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+  }
+}
+@media (max-width: 992px) {
+  .left-block {
+    width: 300px;
+    font-size: 1rem;
+  }
+  .left-title {
+    font-size: 1rem;
+    line-height: 1rem;
+  }
+  .right-block {
+    width: 100%;
+  }
+  .content {
+    padding: 1rem 2rem;
+  }
+  .rsp-375 {
+    flex-direction: column !important;
+  }
+  .left-title{
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+  }
+  .title {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+  }
+  .header-connect-wallet-btn {
+    padding: 0.5rem;
+    border-radius: 3rem;
+    border: 0;
+    margin-right: 1rem;
+    font-size: 1.3rem;
+  }
+  .content-left-block, .content-right-block{
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .content-right-block{
+    width: 75%;
+  }
+}
+@media (max-width: 768px) {
+  .left-block {
+    width: 200px;
+    font-size: 1rem;
+  }
+  .left-title {
+    font-size: 2rem;
+    line-height: 2rem;
+  }
+  .right-block {
+    width: 100%;
+  }
+  .content {
+    padding: 1rem 2rem;
+  }
+  .rsp-375 {
+    flex-direction: column !important;
+  }
+  .left-title{
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+  }
+  .title {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+  }
+  .header-connect-wallet-btn {
+    padding: 0.5rem;
+    border-radius: 3rem;
+    border: 0;
+    margin-right: 1rem;
+    font-size: 1.3rem;
+  }
+  .content-left-block, .content-right-block{
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  
+}
+@media (max-width: 478px) {
+  .left-block {
+    width: 140px;
+    font-size: 1rem;
+  }
+}
+@media (max-width: 375px) {
+  .left-block {
+    width: 100px;
+    font-size: 1rem;
+  }
+}
