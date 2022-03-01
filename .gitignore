@@ -103,3 +103,5 @@ dist
 # TernJS port file
 .tern-port
 Token-and-Staking-Vault-Contract/flatten.sol
+Dashboard/AnchorEarnBSC-StakingVault/.firebaserc
+Dashboard/AnchorEarnBSC-StakingVault/firebase.json
