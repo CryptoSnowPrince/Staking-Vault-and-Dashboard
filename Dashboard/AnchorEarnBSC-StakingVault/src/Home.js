@@ -37,9 +37,9 @@ export default function Home() {
 						</div>
 					</div>
 					<div className="mt-4 d-flex flex-column align-items-center">
-						<div className="mb-3">Website</div>
-						<div className="mb-3">Community</div>
-						<div>Documentation</div>
+						<div className="mb-3"><a href="/">Website</a></div>
+						<div className="mb-3"><a href="/">Community</a></div>
+						<div><a href="/">Documentation</a></div>
 					</div>
 				</div>
 				<div className="d-flex right-block flex-column">
