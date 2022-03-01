@@ -54,7 +54,7 @@ export default function Home() {
 							<button className='header-connect-wallet-btn' onClick={connectWallet}>Connect Wallet</button>
 						</div>
 					</div>
-					<div className="d-flex align-items-center rsp-375">
+					<div className="d-flex align-items-center rsp-375 mt-4">
 						<div className="content-left-block align-items-center d-flex flex-column">
 							<div className="content d-flex flex-column">
 								<div className="text-center content-title">Current APY: 0%</div>
