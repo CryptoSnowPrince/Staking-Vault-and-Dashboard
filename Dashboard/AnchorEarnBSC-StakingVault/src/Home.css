@@ -29,7 +29,7 @@
 .right-block {
   width: calc(100% - 400px);
   background-color: #fdb759;
-  height: 100vh;
+  height: 100%;
   padding: 1rem;
 }
 .content-left-block {
@@ -115,7 +115,7 @@
 @media (max-width: 1400px) {
   .left-block {
     width: 300px;
-    font-size: 1rem;
+    font-size: 1.6rem;
   }
   .left-title {
     font-size: 2rem;
@@ -123,6 +123,7 @@
   }
   .right-block {
     width: 100%;
+    height: 100%;
   }
   .content {
     padding: 1rem 2rem;
@@ -146,6 +147,9 @@
     font-size: 1.2rem;
     margin-top: 1.5rem;
   }
+  .content-right-block{
+    font-size: 1.6rem;
+  }
 }
 @media (max-width: 992px) {
   .left-block {
@@ -158,6 +162,8 @@
   }
   .right-block {
     width: 100%;
+    height: 100%;
+    font-size: 1.8rem;
   }
   .content {
     padding: 1rem 2rem;
@@ -186,6 +192,7 @@
   }
   .content-right-block{
     width: 75%;
+    /* font-size: 1.6rem; */
   }
 }
 @media (max-width: 768px) {
@@ -199,6 +206,8 @@
   }
   .right-block {
     width: 100%;
+    height: 100%;
+    padding-bottom: 20px;
   }
   .content {
     padding: 1rem 2rem;
