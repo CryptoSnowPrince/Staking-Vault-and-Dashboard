@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import InputRange from "react-input-range";
 import "react-input-range/lib/css/index.css";
 
@@ -11,11 +11,12 @@ import ANCHOR_PLACEHOLDER from './assets/images/favicon.png';
 
 export default function Home() {
 	const [busdAmount, setBusdAmount] = useState(50);
+	const [stakeFlag, setStakeFlag] = useState(0);
 	const connectWallet = () => {
 		console.log(123);
 	}
 	const setMax = () => {
-		console.log(123);
+		setBusdAmount(MAXVALUE);
 	}
 	return (
 		<>
@@ -60,16 +61,23 @@ export default function Home() {
 								<div className="text-center content-title">Current APY: 0%</div>
 								<div className="mt-4 mb-4">
 									<div className="d-flex justify-content-around mt-4">
-										<div>Stake</div>
-										<div>Unstake</div>
+										<button className={`${stakeFlag ? "active" : ""} stake-statue`} onClick={() => {
+												setStakeFlag(!stakeFlag);
+											}} >Stake</button>
+										<button className={`${!stakeFlag ? "active" : ""} stake-statue`} onClick={() => {
+												setStakeFlag(!stakeFlag);
+											}} >Unstake</button>
 									</div>
 									<div className="d-flex mt-3">
-										<div className="position-relative"><input placeholder="Amount" className="amount-input" /><span className="position-absolute max-button" onClick={setMax}>MAX</span></div>
+										<div className="position-relative"><input placeholder="Amount" className="amount-input" max={MAXVALUE}
+											min={MINVALUE} value={busdAmount} onChange={(e) => {
+												setBusdAmount(e.target.value);
+											}} /><span className="position-absolute max-button" onClick={setMax}>MAX</span></div>
 										<button className="primary-button">Approve</button>
 									</div>
 									<div className="mt-4">Lock Time in Days:</div>
 									<div className="input-range mt-3">
-										
+
 										<InputRange
 											step={RANGESTEP}
 											maxValue={MAXVALUE}
@@ -96,7 +104,7 @@ export default function Home() {
 								<button className="primary-button mt-4">Collect BUSD Rewards</button>
 							</div>
 						</div>
-						<div className="content-right-block">
+						<div className="content-right-block text-center">
 							Lock your tokens, Earn, and don't worry: your're not missing out on your BUSD rewards!<br />Simply manually claim them. Your share will be stored in the vault as long as you don't claim it.
 						</div>
 					</div>

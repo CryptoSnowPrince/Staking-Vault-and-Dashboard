@@ -33,11 +33,11 @@
   width: calc(100% - 400px);
   background-color: #fdb759;
   /* height: 100vh; */
-  padding: 1rem;
+  padding: 1rem 3rem;
   flex: 1;
 }
 .content-left-block {
-  flex: 2;
+  flex: 2.5;
 }
 .content-right-block {
   flex: 1;
@@ -60,6 +60,16 @@
   background-image: url("./assets/images/content-border.png");
   background-size: 100% 100%;
   padding: 3rem 6rem;
+}
+.stake-statue{
+  border: 0;
+  background: unset;
+  border-bottom: 2px solid black!important;
+  cursor: pointer;
+}
+.stake-statue.active{
+  border-bottom: 2px solid #AAA6A2!important;
+  color: #AAA6A2;
 }
 .content-title {
   font-family: Poppins;
