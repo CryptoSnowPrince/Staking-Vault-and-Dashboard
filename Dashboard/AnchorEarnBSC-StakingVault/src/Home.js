@@ -19,7 +19,7 @@ export default function Home() {
 	}
 	return (
 		<>
-			<div className="d-flex">
+			<div className="d-flex height-100">
 				<div className="d-flex flex-column align-items-center left-block">
 					<div className="d-flex align-items-center gap-3 mt-4 mb-4 rsp-375">
 						<ProgressiveImage
