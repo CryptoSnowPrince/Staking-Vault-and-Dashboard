@@ -11,12 +11,13 @@ import ANCHOR_PLACEHOLDER from './assets/images/favicon.png';
 
 export default function Home() {
 	const [busdAmount, setBusdAmount] = useState(50);
+	const [tokenBalance, setTokenBalance] = useState(0);
 	const [stakeFlag, setStakeFlag] = useState(0);
 	const connectWallet = () => {
 		console.log(123);
 	}
-	const setMax = () => {
-		setBusdAmount(MAXVALUE);
+	const setTokenBalanceMax = () => {
+		console.log(123);
 	}
 	return (
 		<>
@@ -46,7 +47,7 @@ export default function Home() {
 					<div className="header">
 						<div className="content-left-block">
 							<div className="title align-items-center d-flex flex-column">
-								<div className="title-first  position-relative"><span style={{zIndex: "10"}}>ANCHOR</span></div>
+								<div className="title-first  position-relative"><span style={{ zIndex: "10" }}>ANCHOR</span></div>
 								<div className="title-second"><span style={{ color: "#020202" }}>EARN</span>&nbsp;<span>BSC</span>
 								</div>
 							</div>
@@ -62,22 +63,21 @@ export default function Home() {
 								<div className="mt-4 mb-4">
 									<div className="d-flex justify-content-around mt-4">
 										<button className={`${stakeFlag ? "active" : ""} stake-statue`} onClick={() => {
-												setStakeFlag(!stakeFlag);
-											}} >Stake</button>
+											setStakeFlag(!stakeFlag);
+										}} >Stake</button>
 										<button className={`${!stakeFlag ? "active" : ""} stake-statue`} onClick={() => {
-												setStakeFlag(!stakeFlag);
-											}} >Unstake</button>
+											setStakeFlag(!stakeFlag);
+										}} >Unstake</button>
 									</div>
 									<div className="d-flex mt-3">
-										<div className="position-relative"><input placeholder="Amount" className="amount-input" max={MAXVALUE}
-											min={MINVALUE} value={busdAmount} onChange={(e) => {
-												setBusdAmount(e.target.value);
-											}} /><span className="position-absolute max-button" onClick={setMax}>MAX</span></div>
+										<div className="position-relative"><input placeholder="Amount" className="amount-input" value={tokenBalance} onChange={(e) => {
+											setTokenBalance(e.target.value);
+										}} /><span className="position-absolute max-button" onClick={setTokenBalanceMax}>MAX</span></div>
 										<button className="primary-button">Approve</button>
 									</div>
-									<div className="mt-4">Lock Time in Days:</div>
-									<div className="input-range mt-3">
-
+									<br/>
+									<div className="input-rangemb-4 position-relative">
+										<div className="position-absolute" style={{top: "-1.5rem"}}><sub>Lock Time in Days:</sub></div>
 										<InputRange
 											step={RANGESTEP}
 											maxValue={MAXVALUE}
@@ -88,20 +88,21 @@ export default function Home() {
 											}}
 										/>
 									</div>
-									<div className="d-flex justify-content-between mt-3">
-										<div>Your Balance</div>
-										<div>0.00 AEB</div>
+									<br/>
+									<div className="d-flex justify-content-between">
+										<div><sub>Your Balance</sub></div>
+										<div><sub>0.00 AEB</sub></div>
 									</div>
-									<div className="d-flex justify-content-between mt-3">
-										<div>Your Staked Balance</div>
-										<div>0.00 AEB</div>
+									<div className="d-flex justify-content-between mt-2">
+										<div><sub>Your Staked Balance</sub></div>
+										<div><sub>0.00 AEB</sub></div>
 									</div>
-									<div className="d-flex justify-content-between mt-3">
-										<div>Your Until tokens Unlock</div>
-										<div>0 Days</div>
+									<div className="d-flex justify-content-between mt-2">
+										<div><sub>Your Until tokens Unlock</sub></div>
+										<div><sub>0 Days</sub></div>
 									</div>
 								</div>
-								<button className="primary-button mt-4">Collect BUSD Rewards</button>
+								<div className="text-center"><button className="primary-button mt-4 w-75">Collect BUSD Rewards</button></div>
 							</div>
 						</div>
 						<div className="content-right-block text-center">

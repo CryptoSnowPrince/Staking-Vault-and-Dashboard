@@ -42,7 +42,7 @@ a{
   flex: 1;
 }
 .content-left-block {
-  flex: 2.5;
+  flex: 3;
 }
 .content-right-block {
   flex: 1;
@@ -60,56 +60,24 @@ a{
 .title-first {
   font-family: DejaVuSansBold; 
 }
-.content-left-block .title-first{
-  text-shadow: 2px 2px 4px #fff, -2px -2px 4px #fff;
-  border-color:rgba(255, 255, 255, .2)!important;
-  border-style: solid;
-  border-width: 0px 2px 2px 2px;
-  padding: 0rem 0.4rem 0.4rem 0.4rem;
-}
-.content-left-block .title-first::before{
-  position: absolute;
-  content: "";
-  width: 100%;
-  border-color:rgba(255, 255, 255, .2)!important;
-  border-style: solid;
-  border-width: 1px;
-  /* height: 2px; */
-  z-index: 1;
-  right: -3%;
-  top: 30%;
-}
-.content-left-block .title-first::after{
-  position: absolute;
-  content: "";
-  width: 2px;
-  background-color: rgba(255, 255, 255, .2);;
-  height: 30%;
-  right: -3%;
-}
+
 .title-second {
   font-family: DejaVuSans;
 }
 .title-second span:first-child{
   color: #f2f2f2;
 }
-.content-left-block .title-second span:first-child{
-  text-shadow: 1px 1px 4px #fff, -1px -1px 4px #fff;
-  border-color:rgba(255, 255, 255, .2)!important;
-  border-style: solid;
-  border-width: 2px 2px 0px 2px;
-  padding: 0.2rem 0.3rem 0 0.3rem ;
-}
 .content {
   background-image: url("./assets/images/content-border.png");
   background-size: 100% 100%;
-  padding: 3rem 6rem;
+  padding: 2rem 2.5rem;
 }
 .stake-statue{
   border: 0;
   background: unset;
   border-bottom: 2px solid black!important;
   cursor: pointer;
+  font-weight: 600;
 }
 .stake-statue.active{
   border-bottom: 2px solid #AAA6A2!important;
@@ -118,11 +86,12 @@ a{
 .content-title {
   font-family: Poppins;
   font-weight: 900;
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 .content-left-block {
   font-family: Poppins;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 .amount-input {
   background-image: url("./assets/images/input-border.png");
@@ -131,6 +100,7 @@ a{
   border: 0;
   background-color: #fdb759;
   margin-right: 0.7rem;
+  height: 100%;
 }
 .amount-input:focus,
 .amount-input:focus-visible {
@@ -139,7 +109,7 @@ a{
 }
 .max-button {
   right: 1.5rem;
-  top: 0.5rem;
+  top: 1rem;
   cursor: pointer;
 }
 .content-right-block {
@@ -150,7 +120,7 @@ a{
 .primary-button {
   background-color: #000;
   color: #fdb759;
-  padding: 0.5rem;
+  padding: 1rem 0.5rem;
   border-radius: 12px;
   border: 0;
 }
