@@ -32,7 +32,7 @@ export default function Home() {
 						/>
 						<div className="left-title align-items-center d-flex flex-column">
 							<div className="title-first">ANCHOR</div>
-							<div className="title-second"><span style={{ color: "#f2f2f2" }}>EARN&nbsp;</span><span>BSC</span>
+							<div className="title-second"><span >EARN&nbsp;</span><span>BSC</span>
 							</div>
 						</div>
 					</div>
@@ -46,8 +46,8 @@ export default function Home() {
 					<div className="header">
 						<div className="content-left-block">
 							<div className="title align-items-center d-flex flex-column">
-								<div className="title-first">ANCHOR</div>
-								<div className="title-second"><span style={{ color: "#020202" }}>EARN&nbsp;</span><span>BSC</span>
+								<div className="title-first  position-relative"><span style={{zIndex: "10"}}>ANCHOR</span></div>
+								<div className="title-second"><span style={{ color: "#020202" }}>EARN</span>&nbsp;<span>BSC</span>
 								</div>
 							</div>
 						</div>
