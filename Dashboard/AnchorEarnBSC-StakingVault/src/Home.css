@@ -151,6 +151,9 @@ a{
   background: black !important;
   border: 0 !important;
 }
+.input-range__label--value .input-range__label-container{
+  display: none;
+}
 @media (max-width: 1600px) {
   .left-block {
     width: 300px;
@@ -289,16 +292,59 @@ a{
     width: 140px;
     font-size: 1rem;
   }
+  .right-block{
+    width: calc(100% - 140px);
+    font-size: 1rem;
+  }
+  .amount-input{
+    width: 120px;
+  }
+  .content-title{
+    font-size: 1.5rem;
+  }
+  .content-title{
+    font-size: 1.5rem;
+  }
+  .right-block{
+    padding: 0.5rem 1rem;
+  }
+  .header-connect-wallet-btn{
+    font-size: 1rem;
+  }
+  .content-left-block .title{
+    font-size: 1.5rem;
+  }
+  .primary-button.mt-4.w-75{
+    padding: 0.5rem 0.25rem;
+  }
 }
 @media (max-width: 375px) {
   .left-block {
     width: 100px;
     font-size: 1rem;
   }
-}
-@media (max-width: 340px) {
   .content-left-block {
-    /* width: 300px; */
+    width: calc(100% - 100px);
     font-size: 1rem;
+  }
+  .content-title{
+    font-size: 1.5rem;
+  }
+  .amount-input{
+    width: 50px;
+  }
+  .right-block{
+    padding: 0.5rem 1rem;
+  }
+  .header-connect-wallet-btn{
+    font-size: 0.8rem;
+  }
+  .content-left-block .title{
+    font-size: 1.5rem;
+  }
+}
+@media (max-width: 275px) {
+  .amount-input{
+    width: 30px;
   }
 }

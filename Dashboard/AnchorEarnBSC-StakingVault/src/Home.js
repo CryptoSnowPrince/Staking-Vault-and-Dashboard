@@ -56,7 +56,7 @@ export default function Home() {
 							<button className='header-connect-wallet-btn' onClick={connectWallet}>Connect Wallet</button>
 						</div>
 					</div>
-					<div className="d-flex align-items-center rsp-375 mt-4">
+					<div className="d-flex align-items-center rsp-375" style={{flex: "1"}}>
 						<div className="content-left-block align-items-center d-flex flex-column">
 							<div className="content d-flex flex-column">
 								<div className="text-center content-title">Current APY: 0%</div>
@@ -77,7 +77,7 @@ export default function Home() {
 									</div>
 									<br/>
 									<div className="input-rangemb-4 position-relative">
-										<div className="position-absolute" style={{top: "-1.5rem"}}><sub>Lock Time in Days:</sub></div>
+										<div className="position-absolute" style={{top: "-1.7rem"}}><sub>Lock Time in Days: {busdAmount}</sub></div>
 										<InputRange
 											step={RANGESTEP}
 											maxValue={MAXVALUE}
