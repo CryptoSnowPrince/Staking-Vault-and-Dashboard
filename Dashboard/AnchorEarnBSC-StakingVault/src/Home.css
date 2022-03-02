@@ -289,11 +289,11 @@ a{
 }
 @media (max-width: 478px) {
   .left-block {
-    width: 140px;
+    width: 0px;
     font-size: 1rem;
   }
   .right-block{
-    width: calc(100% - 140px);
+    width: 100%;
     font-size: 1rem;
   }
   .amount-input{
@@ -320,11 +320,11 @@ a{
 }
 @media (max-width: 375px) {
   .left-block {
-    width: 100px;
+    width: 0px;
     font-size: 1rem;
   }
   .content-left-block {
-    width: calc(100% - 100px);
+    width: 100%;
     font-size: 1rem;
   }
   .content-title{
