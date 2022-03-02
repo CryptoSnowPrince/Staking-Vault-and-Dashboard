@@ -297,7 +297,7 @@ a{
     font-size: 1rem;
   }
   .amount-input{
-    /* width: 120px; */
+    width: 200px;
   }
   .content-title{
     font-size: 1.5rem;
@@ -331,7 +331,7 @@ a{
     font-size: 1.5rem;
   }
   .amount-input{
-    width: 80px;
+    width: 160px;
   }
   .right-block{
     padding: 0.5rem 1rem;
@@ -345,6 +345,6 @@ a{
 }
 @media (max-width: 275px) {
   .amount-input{
-    width: 50px;
+    width: 120px;
   }
 }
