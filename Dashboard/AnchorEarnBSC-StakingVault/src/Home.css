@@ -296,3 +296,9 @@ a{
     font-size: 1rem;
   }
 }
+@media (max-width: 340px) {
+  .content-left-block {
+    /* width: 300px; */
+    font-size: 1rem;
+  }
+}
