@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import InputRange from "react-input-range";
 import "react-input-range/lib/css/index.css";
-
+import { NotificationContainer, NotificationManager } from "react-notifications";
 import { RANGESTEP, MINVALUE, MAXVALUE } from './constants/constant';
+import 'react-notifications/lib/notifications.css';
 
 import "./Home.css";
 import ProgressiveImage from './components/ProgressiveImage/ProgressiveImage';
+import AppSpinner from "./components/loading/AppSpinner";
 import ANCHOR_LOGO from './assets/images/favicon.png';
 import ANCHOR_PLACEHOLDER from './assets/images/favicon.png';
 
-export default function Home() {
+export default function Home(props) {
+	const [loading, setLoading] = useState(false);
 	const [busdAmount, setBusdAmount] = useState(50);
 	const [tokenBalance, setTokenBalance] = useState(0);
 	const [stakeFlag, setStakeFlag] = useState(0);
-	const connectWallet = () => {
-		console.log(123);
-	}
 	const setTokenBalanceMax = () => {
-		console.log(123);
+		props.web3Provider ? (console.log(234)) : (NotificationManager.info("Please connect wallet!"));
 	}
 	return (
 		<>
@@ -53,10 +53,15 @@ export default function Home() {
 							</div>
 						</div>
 						<div className="content-right-block d-flex justify-content-end">
-							<button className='header-connect-wallet-btn' onClick={connectWallet}>Connect Wallet</button>
+
+							{props.web3Provider ? (
+								<button className='header-connect-wallet-btn'>{props.account}</button>
+							) : (
+								<button className='header-connect-wallet-btn' onClick={props.connect}>Connect Wallet</button>
+							)}
 						</div>
 					</div>
-					<div className="d-flex align-items-center rsp-375" style={{flex: "1"}}>
+					<div className="d-flex align-items-center rsp-375" style={{ flex: "1" }}>
 						<div className="content-left-block align-items-center d-flex flex-column">
 							<div className="content d-flex flex-column">
 								<div className="text-center content-title">Current APY: 0%</div>
@@ -73,11 +78,11 @@ export default function Home() {
 										<div className="position-relative"><input placeholder="Amount" className="amount-input" value={tokenBalance} onChange={(e) => {
 											setTokenBalance(e.target.value);
 										}} /><span className="position-absolute max-button" onClick={setTokenBalanceMax}>MAX</span></div>
-										<button className="primary-button">Approve</button>
+										<button className="primary-button" onClick={props.handleApprove}>Approve</button>
 									</div>
-									<br/>
+									<br />
 									<div className="input-rangemb-4 position-relative">
-										<div className="position-absolute" style={{top: "-1.7rem"}}><sub>Lock Time in Days: {busdAmount}</sub></div>
+										<div className="position-absolute" style={{ top: "-1.7rem" }}><sub>Lock Time in Days: {busdAmount}</sub></div>
 										<InputRange
 											step={RANGESTEP}
 											maxValue={MAXVALUE}
@@ -88,7 +93,7 @@ export default function Home() {
 											}}
 										/>
 									</div>
-									<br/>
+									<br />
 									<div className="d-flex justify-content-between">
 										<div><sub>Your Balance</sub></div>
 										<div><sub>0.00 AEB</sub></div>
@@ -102,7 +107,7 @@ export default function Home() {
 										<div><sub>0 Days</sub></div>
 									</div>
 								</div>
-								<div className="text-center"><button className="primary-button mt-4 w-75">Collect BUSD Rewards</button></div>
+								<div className="text-center"><button className="primary-button mt-4 w-75" onClick={props.handleCollectReward}>Collect BUSD Rewards</button></div>
 							</div>
 						</div>
 						<div className="content-right-block text-center">
@@ -111,6 +116,8 @@ export default function Home() {
 					</div>
 				</div>
 			</div>
+			<NotificationContainer />
+			{loading && <AppSpinner absolute />}
 		</>
 	);
 }

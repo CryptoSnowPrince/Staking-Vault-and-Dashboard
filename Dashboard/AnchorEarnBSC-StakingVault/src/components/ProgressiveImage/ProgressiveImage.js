@@ -33,9 +33,7 @@ const ProgressiveImage = (props) => {
         opacity: loading ? 0.5 : 1,
         transition: "opacity .15s linear",
       }}
-      alt={alt ?? ""}
-      // width="100%"
-      // height="100%"
+      alt={alt ? alt : ""}
       className={className}
     />
   );
