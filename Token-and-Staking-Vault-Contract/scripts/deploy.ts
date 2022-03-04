@@ -22,25 +22,33 @@ async function main() {
   // console.log("Greeter deployed to:", greeter.address);
 
   // for only testnet
-  // const StakingVault_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
-  // const RewardWallet_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
+  const Router = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
+  const StakingVault_addr = "0xE50E943Bd7987fC5E82bce3610762b945303f04A";
+  const RewardWallet_addr = "0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b";
 
-  // const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
-  // const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
+  const DividendDistributor = await ethers.getContractFactory("DividendDistributor");
+  const dividendDistributor = await DividendDistributor.deploy(Router);
 
-  // await anchorEarnBSC.deployed();
+  await dividendDistributor.deployed();
 
-  // console.log("AnchorEarnBSC deployed to:", anchorEarnBSC.address);
+  console.log("DividendDistributor deployed to:", dividendDistributor.address);
 
-  const anchorEarnBSC_addr = "0x4c9E1b387Ae35db18Fe92dB94eD0BBe1A47A997d";
+  const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
+  const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
 
-  const StakingVault = await ethers.getContractFactory("StakingVault");
-  // const stakingVault = await StakingVault.deploy(anchorEarnBSC.address);
-  const stakingVault = await StakingVault.deploy(anchorEarnBSC_addr);
+  await anchorEarnBSC.deployed();
 
-  await stakingVault.deployed();
+  console.log("AnchorEarnBSC deployed to:", anchorEarnBSC.address);
 
-  console.log("StakingVault deployed to:", stakingVault.address);
+  // const anchorEarnBSC_addr = "0x4c9E1b387Ae35db18Fe92dB94eD0BBe1A47A997d";
+
+  // const StakingVault = await ethers.getContractFactory("StakingVault");
+  // // const stakingVault = await StakingVault.deploy(anchorEarnBSC.address);
+  // const stakingVault = await StakingVault.deploy(anchorEarnBSC_addr);
+
+  // await stakingVault.deployed();
+
+  // console.log("StakingVault deployed to:", stakingVault.address);
 
 }
 

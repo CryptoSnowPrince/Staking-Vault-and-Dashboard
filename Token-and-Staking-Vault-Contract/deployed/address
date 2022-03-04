@@ -2,5 +2,11 @@
 StakingVault = 0x658ACab163f640e72d6D3da9e9422C3Ed51DAC4A not verify
 Metapolis = 0xE0ed0b9eB0a756BCff6aBa9B5eB47B31a39422cE not verify
 
-AnchorEarnBSC = 0x4c9E1b387Ae35db18Fe92dB94eD0BBe1A47A997d not verify
-StakingVault = 0xE50E943Bd7987fC5E82bce3610762b945303f04A not verify
+DividendDistributor deployed to: 0x34CAD2ab6d7B78814C2Dc5A7deb46Dd3f44656e4
+AnchorEarnBSC deployed to: 0x860b7118e2e4732ec797776638166af14A5C7EeB
+
+StakingVault = 0xE50E943Bd7987fC5E82bce3610762b945303f04A
+
+npx hardhat verify --network bsctestnet --contract contracts/AnchorEarnBSC.sol:DividendDistributor 0x34CAD2ab6d7B78814C2Dc5A7deb46Dd3f44656e4 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3
+
+npx hardhat verify --network bsctestnet --contract contracts/AnchorEarnBSC.sol:AnchorEarnBSC 0x860b7118e2e4732ec797776638166af14A5C7EeB 0xE50E943Bd7987fC5E82bce3610762b945303f04A 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b
