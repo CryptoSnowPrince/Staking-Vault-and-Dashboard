@@ -210,7 +210,7 @@ contract DividendDistributor is IDividendDistributor {
     
     // Testnet Address
     IBEP20 constant BUSD = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
-    address constant WBNB = 0x094616F0BdFB0b526bD735Bf66Eca0Ad254ca81F;
+    address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
 
     // Mainnet Address
     // IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
@@ -251,7 +251,7 @@ contract DividendDistributor is IDividendDistributor {
         router = _router != address(0)
             ? IDEXRouter(_router)
             // Testnet pancake router address
-            : IDEXRouter(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+            : IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
             // Mainnet pancake router address
             // : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         _token = msg.sender;
@@ -382,7 +382,7 @@ contract AnchorEarnBSC is IBEP20, Auth {
 
     // Testnet Address
     address constant BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
-    address constant WBNB = 0x094616F0BdFB0b526bD735Bf66Eca0Ad254ca81F;
+    address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
     address constant DEAD = 0x000000000000000000000000000000000000dEaD;
     address constant ZERO = 0x0000000000000000000000000000000000000000;
 
@@ -468,7 +468,7 @@ contract AnchorEarnBSC is IBEP20, Auth {
     constructor (address stakingVault, address rewardWallet) Auth(msg.sender) {
 
         // Testnet pancake router address
-        router = IDEXRouter(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+        router = IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
         
         // Mainnet pancake router address
         // router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
