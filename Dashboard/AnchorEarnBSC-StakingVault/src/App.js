@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useCallback, useReducer } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers, ethers } from "ethers";
 import Web3 from "web3";
-
+import config from "./contracts/config";
+import anchorEarnBSCABI from "./contracts/abi/AnchorEarnBSC.json";
+import stakingVaultABI from "./contracts/abi/StakingVault.json";
 import Home from "./Home";
-import abi from "./constants/abi.json";
-
-const INFURA_ID = "88b3ca144c6648df843909df0371ee08";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 
 const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider, // required
     options: {
-      infuraId: INFURA_ID, // required
+      infuraId: config.INFURA_ID, // required
     },
   },
 };
@@ -22,7 +22,7 @@ const providerOptions = {
 let web3Modal;
 if (typeof window !== "undefined") {
   web3Modal = new Web3Modal({
-    network: 'mainnet', // optional
+    network: "mainnet", // optional
     cacheProvider: true,
     providerOptions, // required
     theme: "dark",
@@ -34,6 +34,15 @@ const initialState = {
   web3Provider: null,
   address: null,
   chainId: null,
+};
+
+const getAddress = (address) => {
+  const chainID = config.chainID;
+  return address[chainID] ? address[chainID] : address[0];
+};
+
+const getStakingAPR = (address) => {
+  return 365;
 };
 
 function reducer(state, action) {
@@ -62,62 +71,99 @@ function reducer(state, action) {
       throw new Error();
   }
 }
-const busdAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56';
-const web3 = new Web3(window.ethereum)
-const contract = new web3.eth.Contract(abi, busdAddress);
 
-const  App = () => {
-  const [account, setAccount] = useState('');
-  const [userAddress, setUserAddress] = useState('');
+const web3 = new Web3(window.ethereum);
+const AEBContract = new web3.eth.Contract(
+  anchorEarnBSCABI,
+  getAddress(config.AnchorEarnBSC)
+);
+const StakingContract = new web3.eth.Contract(
+  stakingVaultABI,
+  getAddress(config.StakingVault)
+);
+
+const App = () => {
+  const [account, setAccount] = useState("");
+  const [walletAccount, setWalletAccount] = useState("");
   const [signer, setSigner] = useState();
 
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [timeup, setTimeup] = useState(false);
+
+  const [balanceAEB, setBalanceAEB] = useState(0);
+  const [stakedBalanceAEB, setStakedBalanceAEB] = useState(0);
+  const [contractState, setContractState] = useState("");
+
   const { provider, web3Provider } = state;
+
+  setTimeout(() => {
+    const set = !timeup;
+    setTimeup(set);
+  }, 5000);
+
   const connect = useCallback(async function () {
-    const provider = await web3Modal.connect();
-    if (window.ethereum) {
-      try {
+    try {
+      const provider = await web3Modal.connect();
+      if (window.ethereum) {
         // check if the chain to connect to is installed
         await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x38' }], // chainId must be in hexadecimal numbers
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: config.chainHexID[config.chainID] }], // chainId must be in hexadecimal numbers
         });
-      } catch (error) {
-        if (error.code === 4902) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: '0x38',
-                  rpcUrl: 'https://bsc-dataseed1.defibit.io/',
-                },
-              ],
-            });
-          } catch (addError) {
-            console.error(addError);
-          }
-        }
-        console.error(error);
+      } else {
+        alert(
+          "MetaMask is not installed. Please consider installing it: https://metamask.io/download.html"
+        );
       }
-    } else {
-      alert('MetaMask is not installed. Please consider installing it: https://metamask.io/download.html');
-    } 
 
-    const web3Provider = new providers.Web3Provider(provider);
-    const signer = web3Provider.getSigner();
-    const user_address = await signer.getAddress();
-    const network = await web3Provider.getNetwork();
-    const address = user_address.slice(0, 5) + '...'+ user_address.slice(-4, user_address.length)
-    setSigner(web3Provider.getSigner());
-    setAccount(address);
-    setUserAddress(user_address);
+      const web3Provider = new providers.Web3Provider(provider);
+      const signer = web3Provider.getSigner();
+      const user_address = await signer.getAddress();
+      const network = await web3Provider.getNetwork();
+      const address =
+        user_address.slice(0, 5) +
+        "..." +
+        user_address.slice(-4, user_address.length);
+      setSigner(web3Provider.getSigner());
+      setAccount(address);
+      setWalletAccount(user_address);
+      dispatch({
+        type: "SET_WEB3_PROVIDER",
+        provider,
+        web3Provider,
+        address,
+        chainId: network.chainId,
+      });
+    } catch (error) {
+      if (error.code === 4902) {
+        console.log("pass here");
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: config.chainHexID[config.chainID],
+                rpcUrl: config.RpcURL[config.chainID],
+              },
+            ],
+          });
+        } catch (addError) {
+          console.log(addError);
+        }
+      } else if (error.code === 4001) {
+        console.log(error);
+      }
+      console.log(`${error}`);
+    }
+  }, []);
+  const disconnect = useCallback(async function () {
+    await web3Modal.clearCachedProvider();
+    setSigner(null);
+    setAccount(null);
+    setWalletAccount(null);
     dispatch({
-      type: "SET_WEB3_PROVIDER",
-      provider,
-      web3Provider,
-      address,
-      chainId: network.chainId,
+      type: "RESET_WEB3_PROVIDER",
     });
   }, []);
   useEffect(() => {
@@ -128,48 +174,87 @@ const  App = () => {
   useEffect(() => {
     if (provider) {
       const handleAccountsChanged = (accounts) => {
-        console.log('accountsChanged', accounts)
+        console.log("accountsChanged", accounts);
         dispatch({
-          type: 'SET_ADDRESS',
+          type: "SET_ADDRESS",
           address: accounts[0],
-        })
-      }
+        });
+      };
 
       // https://docs.ethers.io/v5/concepts/best-practices/#best-practices--network-changes
       const handleChainChanged = (_hexChainId) => {
-        window.location.reload()
-      }
+        window.location.reload();
+      };
 
-      provider.on('accountsChanged', handleAccountsChanged)
-      provider.on('chainChanged', handleChainChanged)
+      provider.on("accountsChanged", handleAccountsChanged);
+      provider.on("chainChanged", handleChainChanged);
 
       // Subscription Cleanup
       return () => {
         if (provider.removeListener) {
-          provider.removeListener('accountsChanged', handleAccountsChanged)
-          provider.removeListener('chainChanged', handleChainChanged)
+          provider.removeListener("accountsChanged", handleAccountsChanged);
+          provider.removeListener("chainChanged", handleChainChanged);
         }
-      }
+      };
     }
   }, [provider]);
 
-  const handleApprove = () => {
-    console.log(123) ;
-  }
+  useEffect(async () => {
+    try {
+      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const stakerInfo = await StakingContract.methods
+        .userInfo_(walletAccount)
+        .call();
+      setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
+      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"))
+    } catch (error) {
+      console.log(`${error}`);
+    }
+  }, [contractState, timeup]);
+
+  const handleApprove = async () => {
+    try {
+      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const stakerInfo = await StakingContract.methods
+        .userInfo_(walletAccount)
+        .call();
+      setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
+      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+    } catch (error) {
+      console.log(`${error}`);
+    }
+  };
   const handleCollectReward = () => {
-    console.log(123) ;
-  }
+    console.log(123);
+  };
+  const init = async () => {
+    try {
+      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const stakerInfo = await StakingContract.methods
+        .userInfo_(walletAccount)
+        .call();
+      setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
+      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+    } catch (error) {
+      console.log(`${error}`);
+    }
+  };
+  init();
   return (
     <>
       <Home
         account={account}
         connect={connect}
+        disconnect={disconnect}
         handleApprove={handleApprove}
         handleCollectReward={handleCollectReward}
-        web3Provider={web3Provider} 
+        web3Provider={web3Provider}
+        balanceAEB={balanceAEB}
+        stakedBalanceAEB={stakedBalanceAEB}
+        stakingAPR={getStakingAPR()}
       />
     </>
   );
-}
+};
 
 export default App;
