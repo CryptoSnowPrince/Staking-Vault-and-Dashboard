@@ -75,7 +75,7 @@ export default function Home(props) {
                   className="header-connect-wallet-btn"
                   onClick={props.disconnect}
                 >
-                  {props.account}
+                  {props.showAccountAddress}
                 </button>
               ) : (
                 <button

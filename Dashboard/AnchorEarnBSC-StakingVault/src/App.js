@@ -83,8 +83,8 @@ const StakingContract = new web3.eth.Contract(
 );
 
 const App = () => {
+  const [showAccountAddress, setShowAccountAddress] = useState("");
   const [account, setAccount] = useState("");
-  const [walletAccount, setWalletAccount] = useState("");
   const [signer, setSigner] = useState();
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -119,20 +119,20 @@ const App = () => {
 
       const web3Provider = new providers.Web3Provider(provider);
       const signer = web3Provider.getSigner();
-      const user_address = await signer.getAddress();
+      const account = await signer.getAddress();
       const network = await web3Provider.getNetwork();
-      const address =
-        user_address.slice(0, 5) +
+      const show_address =
+        account.slice(0, 5) +
         "..." +
-        user_address.slice(-4, user_address.length);
+        account.slice(-4, account.length);
       setSigner(web3Provider.getSigner());
-      setAccount(address);
-      setWalletAccount(user_address);
+      setShowAccountAddress(show_address);
+      setAccount(account);
       dispatch({
         type: "SET_WEB3_PROVIDER",
         provider,
         web3Provider,
-        address,
+        show_address,
         chainId: network.chainId,
       });
     } catch (error) {
@@ -160,8 +160,8 @@ const App = () => {
   const disconnect = useCallback(async function () {
     await web3Modal.clearCachedProvider();
     setSigner(null);
+    setShowAccountAddress(null);
     setAccount(null);
-    setWalletAccount(null);
     dispatch({
       type: "RESET_WEB3_PROVIDER",
     });
@@ -201,12 +201,12 @@ const App = () => {
 
   useEffect(async () => {
     try {
-      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const balance = await AEBContract.methods.balanceOf(account).call();
       const stakerInfo = await StakingContract.methods
-        .userInfo_(walletAccount)
+        .userInfo_(account)
         .call();
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
-      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"))
+      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
     } catch (error) {
       console.log(`${error}`);
     }
@@ -214,9 +214,9 @@ const App = () => {
 
   const handleApprove = async () => {
     try {
-      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const balance = await AEBContract.methods.balanceOf(account).call();
       const stakerInfo = await StakingContract.methods
-        .userInfo_(walletAccount)
+        .userInfo_(account)
         .call();
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
       setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
@@ -229,9 +229,9 @@ const App = () => {
   };
   const init = async () => {
     try {
-      const balance = await AEBContract.methods.balanceOf(walletAccount).call();
+      const balance = await AEBContract.methods.balanceOf(account).call();
       const stakerInfo = await StakingContract.methods
-        .userInfo_(walletAccount)
+        .userInfo_(account)
         .call();
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
       setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
@@ -243,7 +243,7 @@ const App = () => {
   return (
     <>
       <Home
-        account={account}
+        showAccountAddress={showAccountAddress}
         connect={connect}
         disconnect={disconnect}
         handleApprove={handleApprove}
