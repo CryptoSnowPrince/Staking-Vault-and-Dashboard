@@ -31,19 +31,20 @@ contract StakingVault is Ownable {
     //--------------------------------------
 
     // Testnet Address
-    IERC20 constant BUSD                            = IERC20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
-    address payable constant TREASURY_WALLET        = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
-    address constant REWARD_TOKEN_WALLET            = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
+    IERC20 constant BUSD                                    = IERC20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
+    address payable constant TREASURY_WALLET                = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
+    address constant REWARD_TOKEN_WALLET                    = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
 
     // Mainnet Address
-    // address constant BUSD                           = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    // address payable constant TREASURY_WALLET        = payable();
-    // address constant REWARD_TOKEN_WALLET            = ;
+    // address constant BUSD                                = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    // address payable constant TREASURY_WALLET             = payable();
+    // address constant REWARD_TOKEN_WALLET                 = ;
 
-    uint256 constant CLAIM_FEE                      = 3 * 10**14;                                   // 0.0003 BNB
-    uint256 constant PENALTY_FEE                    = 3 * 10**15;                                   // 0.003 BNB PER AEB
-    uint256 constant MAX_STAKE_AMOUNT_PER_USER      = 10000;
-    uint256 constant STAKING_TIME_UNIT              = 1 days;
+    uint256 constant CLAIM_FEE                              = 3 * 10**14;   // 0.0003 BNB
+    uint256 constant PENALTY_FEE                            = 3 * 10**15;   // 0.003 BNB PER AEB
+    uint256 constant STAKING_TIME_UNIT                      = 1 days;
+    // MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS * 10 ** decimals
+    uint256 constant MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS = 10000;
 
     /**
      * staking rewards = 
@@ -124,7 +125,8 @@ contract StakingVault is Ownable {
     function stakeAEB(uint256 _amount, uint16 _stakingTime) external {
         require(_stakingTime >= minStakingTime_, "Staking Time must be at least 10 days");
         require(_stakingTime <= maxStakingTime_, "Staking Time must be less than 100 days");
-        require(_amount <= MAX_STAKE_AMOUNT_PER_USER, "Max stake amount per user overflow");
+        require(_amount <= MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS * 10 ** token_.decimals(), 
+            "Max stake amount per user overflow");
         require(_amount <= token_.balanceOf(msg.sender), "Not enough AEB token to stake");
         require(userInfo_[msg.sender].amount == 0, "Already token is staked");
 
