@@ -410,7 +410,7 @@ contract AnchorEarnBSC is IBEP20, Auth {
     //--------------------------------------
 
     // uint256 public _maxTxAmount = _totalSupply * 100 / 100;
-    uint256 public _maxTxAmount = _totalSupply / 5000; // 0.02%
+    uint256 public _maxTxAmount = _totalSupply / 10000; // 0.01%
 
     //max wallet holding of 2% 
     uint256 public _maxWalletToken = _totalSupply / 5000; // 0.02%
@@ -453,7 +453,7 @@ contract AnchorEarnBSC is IBEP20, Auth {
     mapping (address => uint) private cooldownTimer;
 
     bool public swapEnabled = true;
-    uint256 public swapThreshold = _totalSupply * 10 / 10000; // 0.1% of supply
+    uint256 public swapThreshold = _totalSupply / 10000; // 0.01% of supply
     bool inSwap;
 
     //-------------------------------------------------------------------------
