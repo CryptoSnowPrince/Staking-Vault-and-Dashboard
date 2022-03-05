@@ -3,7 +3,24 @@
 pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+/**
+ * @title BEP20 standard interface.
+ */
+interface IBEP20 {
+    function totalSupply() external view returns (uint256);
+    function decimals() external view returns (uint8);
+    function symbol() external view returns (string memory);
+    function name() external view returns (string memory);
+    function getOwner() external view returns (address);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address _owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
 
 /**
  * @title Staking Vault Contract
@@ -31,12 +48,12 @@ contract StakingVault is Ownable {
     //--------------------------------------
 
     // Testnet Address
-    IERC20 constant BUSD                                    = IERC20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
+    IBEP20 constant BUSD                                    = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
     address payable constant TREASURY_WALLET                = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
     address constant REWARD_TOKEN_WALLET                    = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
 
     // Mainnet Address
-    // address constant BUSD                                = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    // address constant BUSD                                = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
     // address payable constant TREASURY_WALLET             = payable();
     // address constant REWARD_TOKEN_WALLET                 = ;
 
@@ -58,7 +75,7 @@ contract StakingVault is Ownable {
     // State variables
     //--------------------------------------
 
-    IERC20 public token_;
+    IBEP20 public token_;
     uint16 public minStakingTime_;
     uint16 public maxStakingTime_;
     mapping(address => UserInfo) public userInfo_;
@@ -91,7 +108,7 @@ contract StakingVault is Ownable {
      */
     constructor(address _token) {
         require(_token != address(0), "Zero Address");
-        token_ = IERC20(_token);
+        token_ = IBEP20(_token);
         minStakingTime_ = 10;
         maxStakingTime_ = 100;
         totalStakeAmount_ = 0;
@@ -105,7 +122,7 @@ contract StakingVault is Ownable {
 
     function setAEB(address _token) external onlyOwner {
         require(_token != address(0), "Zero Address");
-        token_ = IERC20(_token);
+        token_ = IBEP20(_token);
         emit LogAEB(_token);
     }
 
