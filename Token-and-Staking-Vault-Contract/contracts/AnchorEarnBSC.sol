@@ -410,10 +410,11 @@ contract AnchorEarnBSC is IBEP20, Auth {
     //--------------------------------------
 
     // uint256 public _maxTxAmount = _totalSupply * 100 / 100;
-    uint256 public _maxTxAmount = _totalSupply / 5000;
+    uint256 public _maxTxAmount = _totalSupply / 5000; // 0.02%
 
     //max wallet holding of 2% 
-    uint256 public _maxWalletToken = ( _totalSupply * 100 ) / 100;
+    uint256 public _maxWalletToken = _totalSupply / 5000; // 0.02%
+    // uint256 public _maxWalletToken = ( _totalSupply * 100 ) / 100;
     
     mapping (address => uint256) _balances;
     mapping (address => mapping (address => uint256)) _allowances;
@@ -429,7 +430,7 @@ contract AnchorEarnBSC is IBEP20, Auth {
     uint256 liquidityFee    = 0;
     uint256 reflectionFee   = 4;
     uint256 marketingFee    = 6;
-    uint256 totalFee = 10;
+    uint256 totalFee        = 10;
     uint256 feeDenominator  = 100;
 
     address autoLiquidityReceiver;
@@ -550,10 +551,15 @@ contract AnchorEarnBSC is IBEP20, Auth {
         return _transferFrom(sender, recipient, amount);
     }
 
-    //settting the maximum permitted wallet holding (percent of total supply)
-     function setMaxWalletPercent(uint256 maxWallPercent) external onlyOwner() {
-        _maxWalletToken = (_totalSupply * maxWallPercent ) / 100;
+    function setMaxWalletAmount(uint256 amount) external onlyOwner() {
+        require(amount < (_totalSupply / 5000), 
+            "MaxWalletAmount must be less than 0.02% of totalSupply");
+        _maxWalletToken = amount;
     }
+    //settting the maximum permitted wallet holding (percent of total supply)
+    //  function setMaxWalletPercent(uint256 maxWallPercent) external onlyOwner() {
+    //     _maxWalletToken = (_totalSupply * maxWallPercent ) / 100;
+    // }
 
     function _transferFrom(
         address sender, 
