@@ -7,7 +7,7 @@ const config = {
   StakingVault: {
     0: "0x0000000000000000000000000000000000000000",
     56: "",
-    97: "0xE50E943Bd7987fC5E82bce3610762b945303f04A",
+    97: "0xd6861aB260a8c2f060d3E541Df7696dDBC9AB682",
   },
   BlockExplorerURL: {
     56: "https://bscscan.com",
@@ -21,6 +21,7 @@ const config = {
     56: "0x38",
     97: "0x61",
   },
+  MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS: 10000,
   INFURA_ID: "88b3ca144c6648df843909df0371ee08",
   chainID: 97,
 };

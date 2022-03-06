@@ -144,6 +144,9 @@ a{
   border-radius: 12px;
   border: 0;
 }
+.fixed-width-button-150 {
+  width: 140px;
+}
 .input-range__track--active {
   background: black !important;
 }
@@ -151,8 +154,12 @@ a{
   background: black !important;
   border: 0 !important;
 }
-.input-range__label--value .input-range__label-container{
+.input-range__label--value .input-range__label-container {
   display: none;
+}
+.unstake-unvisible {
+  pointer-events: none;
+  opacity: 0;
 }
 @media (max-width: 1600px) {
   .left-block {
@@ -245,6 +252,9 @@ a{
     width: 75%;
     /* font-size: 1.6rem; */
   }
+  .fixed-width-button-150 {
+    width: 120px;
+  }
 }
 @media (max-width: 768px) {
   .left-block {
@@ -285,7 +295,9 @@ a{
     font-size: 1.2rem;
     margin-top: 1.5rem;
   }
-  
+  .fixed-width-button-150 {
+    width: 110px;
+  }
 }
 @media (max-width: 478px) {
   .left-block {
@@ -317,6 +329,9 @@ a{
   .primary-button.mt-4.w-75{
     padding: 0.5rem 0.25rem;
   }
+  .fixed-width-button-150 {
+    width: 90px;
+  }
 }
 @media (max-width: 375px) {
   .left-block {
@@ -342,9 +357,16 @@ a{
   .content-left-block .title{
     font-size: 1.5rem;
   }
+  .fixed-width-button-150 {
+    width: 70px;
+  }
 }
 @media (max-width: 275px) {
   .amount-input{
     width: 120px;
+  }
+  .fixed-width-button-150 {
+    width: 45px;
+    font-size: 0.7rem;
   }
 }

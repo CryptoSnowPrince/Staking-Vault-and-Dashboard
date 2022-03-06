@@ -57,11 +57,14 @@ contract StakingVault is Ownable {
     // address payable constant TREASURY_WALLET             = payable();
     // address constant REWARD_TOKEN_WALLET                 = ;
 
-    uint256 constant CLAIM_FEE                              = 3 * 10**14;   // 0.0003 BNB
-    uint256 constant PENALTY_FEE                            = 3 * 10**15;   // 0.003 BNB PER AEB
+    // Note: AEB's decimals is 9. Please consider it.
+    // CLAIM_FEE = claim_fee / (10 ** 9)
+    uint256 constant CLAIM_FEE                              = 3 * 10**(14 - 9);   // 0.0003 BNB
+    // PENALTY_FEE = penalty_fee / (10 ** 9)
+    uint256 constant PENALTY_FEE                            = 3 * 10**(15 - 9);   // 0.003 BNB PER AEB
+    // MAX_STAKE_AMOUNT_PER_USER * (10 ** decimals)
+    uint256 constant MAX_STAKE_AMOUNT_PER_USER              = 10000 * (10 ** 9);
     uint256 constant STAKING_TIME_UNIT                      = 1 days;
-    // MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS * 10 ** decimals
-    uint256 constant MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS = 10000;
 
     /**
      * staking rewards = 
@@ -142,7 +145,7 @@ contract StakingVault is Ownable {
     function stakeAEB(uint256 _amount, uint16 _stakingTime) external {
         require(_stakingTime >= minStakingTime_, "Staking Time must be at least 10 days");
         require(_stakingTime <= maxStakingTime_, "Staking Time must be less than 100 days");
-        require(_amount <= MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS * 10 ** token_.decimals(), 
+        require(_amount <= MAX_STAKE_AMOUNT_PER_USER, 
             "Max stake amount per user overflow");
         require(_amount <= token_.balanceOf(msg.sender), "Not enough AEB token to stake");
         require(userInfo_[msg.sender].amount == 0, "Already token is staked");
@@ -190,7 +193,9 @@ contract StakingVault is Ownable {
 
         uint256 amount = userInfo_[msg.sender].amount;
         userInfo_[msg.sender].amount = 0;
-        uint256 stakingReward = amount * 
+        // reward = AEBAmount*delta*rate 
+        // AEBAmount = amount / (10 ** decimals)
+        uint256 stakingReward = amount / (10 ** 9) * 
             (block.number - userInfo_[msg.sender].lastClaimBlockNumber) / 
             RewardRatePerBlockPerToken;
         userInfo_[msg.sender].stakingRewarded += stakingReward;
@@ -237,7 +242,9 @@ contract StakingVault is Ownable {
             deltaBusd = busdBalance - busdLastBalance_;
         }
 
-        uint256 stakingReward = userInfo_[msg.sender].amount * 
+        // reward = AEBAmount*delta*rate 
+        // AEBAmount = amount / (10 ** decimals)
+        uint256 stakingReward = userInfo_[msg.sender].amount / (10 ** 9) * 
             (block.number - userInfo_[msg.sender].lastClaimBlockNumber) / 
             RewardRatePerBlockPerToken;
 

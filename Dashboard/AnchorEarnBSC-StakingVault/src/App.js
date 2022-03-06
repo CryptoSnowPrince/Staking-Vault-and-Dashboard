@@ -10,6 +10,9 @@ import stakingVaultABI from "./contracts/abi/StakingVault.json";
 import Home from "./Home";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 
+const CLAIM_FEE = 0.0003;
+const PENALTY_FEE = 0.003;
+
 const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider, // required
@@ -93,9 +96,12 @@ const App = () => {
 
   const [balanceAEB, setBalanceAEB] = useState(0);
   const [stakedBalanceAEB, setStakedBalanceAEB] = useState(0);
+  const [remainTimeToUnlock, setRemainTimeToUnlock] = useState(0);
+  const [allowanceAmount, setAllowanceAmount] = useState(0);
+
   const [contractState, setContractState] = useState("");
 
-  const { provider, web3Provider } = state;
+  const { provider, web3Provider, address, chainId } = state;
 
   setTimeout(() => {
     const set = !timeup;
@@ -122,9 +128,7 @@ const App = () => {
       const account = await signer.getAddress();
       const network = await web3Provider.getNetwork();
       const show_address =
-        account.slice(0, 5) +
-        "..." +
-        account.slice(-4, account.length);
+        account.slice(0, 5) + "..." + account.slice(-4, account.length);
       setSigner(web3Provider.getSigner());
       setShowAccountAddress(show_address);
       setAccount(account);
@@ -137,7 +141,6 @@ const App = () => {
       });
     } catch (error) {
       if (error.code === 4902) {
-        console.log("pass here");
         try {
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
@@ -174,7 +177,7 @@ const App = () => {
   useEffect(() => {
     if (provider) {
       const handleAccountsChanged = (accounts) => {
-        console.log("accountsChanged", accounts);
+        connect();
         dispatch({
           type: "SET_ADDRESS",
           address: accounts[0],
@@ -200,46 +203,122 @@ const App = () => {
   }, [provider]);
 
   useEffect(async () => {
-    try {
-      const balance = await AEBContract.methods.balanceOf(account).call();
-      const stakerInfo = await StakingContract.methods
-        .userInfo_(account)
-        .call();
-      setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
-      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
-    } catch (error) {
-      console.log(`${error}`);
-    }
-  }, [contractState, timeup]);
+    // try {
+    //   const balance = await AEBContract.methods.balanceOf(account).call();
+    //   const stakerInfo = await StakingContract.methods
+    //     .userInfo_(account)
+    //     .call();
+    //   setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
+    //   setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+    //   const remainTime = (stakerInfo.endStakeTime - Date.now()/1000)/86400;
+    //   setRemainTimeToUnlock(remainTime);
+    // } catch (error) {
+    //   console.log(`${error}`);
+    // }
+  }, [contractState, state, timeup]);
 
-  const handleApprove = async () => {
+  const handleApprove = async (tokenAmount) => {
     try {
-      const balance = await AEBContract.methods.balanceOf(account).call();
-      const stakerInfo = await StakingContract.methods
-        .userInfo_(account)
-        .call();
-      setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
-      setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+      const result = await AEBContract.methods
+        .approve(
+          config.StakingVault[config.chainID],
+          web3.utils.toWei(parseFloat(tokenAmount).toString(), "Gwei")
+        )
+        .send({ from: account });
+      init();
     } catch (error) {
+      alert(
+        `Transaction failed. Please check your account and retry. ${error.message}`
+      );
       console.log(`${error}`);
     }
   };
-  const handleCollectReward = () => {
-    console.log(123);
+  const handleStake = async (tokenAmount, stakingTime) => {
+    try {
+      const result = await StakingContract.methods
+        .stakeAEB(
+          web3.utils.toWei(parseFloat(tokenAmount).toString(), "Gwei"),
+          parseInt(stakingTime)
+        )
+        .send({ from: account });
+      init();
+    } catch (error) {
+      alert(
+        `Transaction failed. Please check your account and retry. ${error.message}`
+      );
+      console.log(`${error}`);
+    }
   };
+  const handleUnstake = async () => {
+    init();
+    if (stakedBalanceAEB <= 0) {
+      alert(`There is not staked token.`);
+      return;
+    }
+    const feeValue =
+      stakedBalanceAEB *
+      (remainTimeToUnlock > 0 ? CLAIM_FEE + PENALTY_FEE : CLAIM_FEE);
+    try {
+      const result = await StakingContract.methods.unstakeAEB().send({
+        from: account,
+        value: web3.utils.toWei(Number(feeValue).toString(), "ether"),
+      });
+      init();
+    } catch (error) {
+      alert(
+        `Transaction failed. Please check your account and retry. ${error.message}`
+      );
+      console.log(`${error}`);
+    }
+  };
+
+  const handleClaimStakingReward = async () => {
+    console.log(handleClaimStakingReward);
+  };
+
+  const handleBUSDReward = async () => {
+    init();
+    if (stakedBalanceAEB <= 0) {
+      alert(`You can't get BUSD Reward because there is not staked token.`);
+      return;
+    }
+    try {
+      const result = await StakingContract.methods.claimBusdReward().send({
+        from: account,
+      });
+      init();
+    } catch (error) {
+      alert(
+        `Transaction failed. Please check your account and retry. ${error.message}`
+      );
+      console.log(`${error}`);
+    }
+  };
+
   const init = async () => {
     try {
       const balance = await AEBContract.methods.balanceOf(account).call();
+      const allowanceAmount = await AEBContract.methods
+        .allowance(account, config.StakingVault[config.chainID])
+        .call();
       const stakerInfo = await StakingContract.methods
         .userInfo_(account)
         .call();
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
       setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+      const remainTime =
+        stakerInfo.amount > 0 ? stakerInfo.endStakeTime - Date.now() / 1000 : 0;
+      setRemainTimeToUnlock(remainTime);
+      setAllowanceAmount(web3.utils.fromWei(allowanceAmount, "Gwei"));
     } catch (error) {
       console.log(`${error}`);
     }
   };
-  init();
+
+  useEffect(() => {
+    init();
+  }, [state]);
+
   return (
     <>
       <Home
@@ -247,11 +326,15 @@ const App = () => {
         connect={connect}
         disconnect={disconnect}
         handleApprove={handleApprove}
-        handleCollectReward={handleCollectReward}
+        handleStake={handleStake}
+        handleUnstake={handleUnstake}
+        handleBUSDReward={handleBUSDReward}
         web3Provider={web3Provider}
         balanceAEB={balanceAEB}
         stakedBalanceAEB={stakedBalanceAEB}
+        remainTimeToUnlock={remainTimeToUnlock}
         stakingAPR={getStakingAPR()}
+        allowanceAmount={allowanceAmount}
       />
     </>
   );
