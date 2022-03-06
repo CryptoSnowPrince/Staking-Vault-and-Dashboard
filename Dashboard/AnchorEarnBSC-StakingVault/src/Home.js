@@ -20,12 +20,16 @@ export default function Home(props) {
   const [stakingTime, setStakingTime] = useState(MAXVALUE);
   const [tokenAmount, setTokenAmount] = useState();
   const [stakeFlag, setStakeFlag] = useState(true);
+  const [timeString, setTimeString] = useState("0 Days");
 
   const [clock, setClock] = useState(0);
 
-  setTimeout(() => {
-    setClock(clock + 1);
-  }, 1000);
+  useEffect(() => {
+    setTimeout(() => {
+      setClock(clock + 1);
+      setTimeString(getRemainDateTime(props.remainTimeToUnlock - clock));
+    }, 1000);
+  }, [clock]);
 
   useEffect(() => {
     setClock(0);
@@ -40,16 +44,16 @@ export default function Home(props) {
               : props.balanceAEB
           )
         : setTokenAmount(0);
-      //   : NotificationManager.info("Please connect wallet!");
+      // : NotificationManager.info("Please connect wallet!");
     }
   };
 
   const getRemainDateTime = (second) => {
-    let remain = second - clock;
+    let remain = second;
     if (remain <= 0) return "0 Days";
     const day = parseInt(remain / 86400);
     remain = remain - day * 86400;
-	console.log(remain);
+    console.log(`remain ======= ${remain}`);
     if (day > 0) {
       if (remain > 1) {
         return (day + 1).toString() + " Days";
@@ -265,13 +269,7 @@ export default function Home(props) {
                       <sub>Your Until tokens Unlock</sub>
                     </div>
                     <div>
-                      <sub>
-                        {props.web3Provider
-                          ? getRemainDateTime(
-                              parseInt(props.remainTimeToUnlock)
-                            )
-                          : "0 Days"}
-                      </sub>
+                      <sub>{props.web3Provider ? timeString : "0 Days"}</sub>
                     </div>
                   </div>
                 </div>
