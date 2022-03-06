@@ -49,11 +49,11 @@ export default function Home(props) {
   };
 
   const getRemainDateTime = (second) => {
-    let remain = second;
+    let remain = parseInt(second);
     if (remain <= 0) return "0 Days";
     const day = parseInt(remain / 86400);
     remain = remain - day * 86400;
-    console.log(`remain ======= ${remain}`);
+    console.log(`r:${remain}`);
     if (day > 0) {
       if (remain > 1) {
         return (day + 1).toString() + " Days";

@@ -92,21 +92,21 @@ const App = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [timeup, setTimeup] = useState(false);
+  // const [timeup, setTimeup] = useState(false);
 
   const [balanceAEB, setBalanceAEB] = useState(0);
   const [stakedBalanceAEB, setStakedBalanceAEB] = useState(0);
   const [remainTimeToUnlock, setRemainTimeToUnlock] = useState(0);
   const [allowanceAmount, setAllowanceAmount] = useState(0);
 
-  const [contractState, setContractState] = useState("");
+  // const [contractState, setContractState] = useState("");
 
   const { provider, web3Provider, address, chainId } = state;
 
-  setTimeout(() => {
-    const set = !timeup;
-    setTimeup(set);
-  }, 5000);
+  // setTimeout(() => {
+  //   const set = !timeup;
+  //   setTimeup(set);
+  // }, 5000);
 
   const connect = useCallback(async function () {
     try {
@@ -202,20 +202,20 @@ const App = () => {
     }
   }, [provider]);
 
-  useEffect(async () => {
-    // try {
-    //   const balance = await AEBContract.methods.balanceOf(account).call();
-    //   const stakerInfo = await StakingContract.methods
-    //     .userInfo_(account)
-    //     .call();
-    //   setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
-    //   setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
-    //   const remainTime = (stakerInfo.endStakeTime - Date.now()/1000)/86400;
-    //   setRemainTimeToUnlock(remainTime);
-    // } catch (error) {
-    //   console.log(`${error}`);
-    // }
-  }, [contractState, state, timeup]);
+  // useEffect(async () => {
+  //   // try {
+  //   //   const balance = await AEBContract.methods.balanceOf(account).call();
+  //   //   const stakerInfo = await StakingContract.methods
+  //   //     .userInfo_(account)
+  //   //     .call();
+  //   //   setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
+  //   //   setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+  //   //   const remainTime = (stakerInfo.endStakeTime - Date.now()/1000)/86400;
+  //   //   setRemainTimeToUnlock(remainTime);
+  //   // } catch (error) {
+  //   //   console.log(`${error}`);
+  //   // }
+  // }, [contractState, state, timeup]);
 
   const handleApprove = async (tokenAmount) => {
     try {
