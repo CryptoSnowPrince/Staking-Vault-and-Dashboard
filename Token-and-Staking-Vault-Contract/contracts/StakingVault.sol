@@ -48,31 +48,30 @@ contract StakingVault is Ownable {
     //--------------------------------------
 
     // Testnet Address
-    IBEP20 constant BUSD                                    = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
-    address payable constant TREASURY_WALLET                = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
-    address constant REWARD_TOKEN_WALLET                    = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
+    // IBEP20 constant BUSD                                    = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
+    // address payable constant TREASURY_WALLET                = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
+    // address constant REWARD_TOKEN_WALLET                    = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
 
     // Mainnet Address
-    // address constant BUSD                                = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    // address payable constant TREASURY_WALLET             = payable();
-    // address constant REWARD_TOKEN_WALLET                 = ;
+    address constant BUSD                               = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    address payable constant TREASURY_WALLET            = payable();
+    address constant REWARD_TOKEN_WALLET                = ;
 
     // Note: AEB's decimals is 9. Please consider it.
     // CLAIM_FEE = claim_fee / (10 ** 9)
-    uint256 constant CLAIM_FEE                              = 3 * 10**(14 - 9);   // 0.0003 BNB
+    uint256 constant CLAIM_FEE                          = 3 * 10**(14 - 9);   // 0.0003 BNB
     // PENALTY_FEE = penalty_fee / (10 ** 9)
-    uint256 constant PENALTY_FEE                            = 3 * 10**(15 - 9);   // 0.003 BNB PER AEB
+    uint256 constant PENALTY_FEE                        = 3 * 10**(15 - 9);   // 0.003 BNB PER AEB
     // MAX_STAKE_AMOUNT_PER_USER * (10 ** decimals)
-    uint256 constant MAX_STAKE_AMOUNT_PER_USER              = 10000 * (10 ** 9);
-    uint256 constant STAKING_TIME_UNIT                      = 1 days;
+    uint256 constant MAX_STAKE_AMOUNT_PER_USER          = 10000 * (10 ** 9);
+    uint256 constant STAKING_TIME_UNIT                  = 1 days;
 
     /**
      * staking rewards = 
      *  StakedAmount * (end.block.number - start.block.number)
      *  / RewardRatePerBlockPerToken
      */
-    uint256 constant RewardRatePerBlockPerToken     = 2880000;
-
+    uint256 constant RewardRatePerBlockPerToken         = 2880000;
     
     //--------------------------------------
     // State variables

@@ -209,12 +209,12 @@ contract DividendDistributor is IDividendDistributor {
     //--------------------------------------
     
     // Testnet Address
-    IBEP20 constant BUSD = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
-    address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
+    // IBEP20 constant BUSD = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
+    // address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
 
     // Mainnet Address
-    // IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    // address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    IBEP20 constant BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
     
     IDEXRouter router;
 
@@ -251,9 +251,9 @@ contract DividendDistributor is IDividendDistributor {
         router = _router != address(0)
             ? IDEXRouter(_router)
             // Testnet pancake router address
-            : IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
+            // : IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
             // Mainnet pancake router address
-            // : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+            : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         _token = msg.sender;
     }
 
@@ -381,24 +381,24 @@ contract AnchorEarnBSC is IBEP20, Auth {
     //--------------------------------------
 
     // Testnet Address
-    address constant BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
-    address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
-    address constant DEAD = 0x000000000000000000000000000000000000dEaD;
-    address constant ZERO = 0x0000000000000000000000000000000000000000;
-
-    // Mainnet Address
-    // address constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
-    // address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    // address constant BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
+    // address constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
     // address constant DEAD = 0x000000000000000000000000000000000000dEaD;
     // address constant ZERO = 0x0000000000000000000000000000000000000000;
 
+    // Mainnet Address
+    address constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+    address constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    address constant DEAD = 0x000000000000000000000000000000000000dEaD;
+    address constant ZERO = 0x0000000000000000000000000000000000000000;
+
     // Mainnet Name and Symbol
-    // string constant _name = "AnchorEarnBSC";
-    // string constant _symbol = "AEB";
+    string constant _name = "AnchorEarnBSC";
+    string constant _symbol = "AEB";
     
     // Testnet Name and Symbol
-    string constant _name = "AnchorEarnBSC_t";
-    string constant _symbol = "AEB_0";
+    // string constant _name = "AnchorEarnBSC_t";
+    // string constant _symbol = "AEB_0";
     
     uint8 constant _decimals = 9;
 
@@ -469,10 +469,10 @@ contract AnchorEarnBSC is IBEP20, Auth {
     constructor (address stakingVault, address rewardWallet) Auth(msg.sender) {
 
         // Testnet pancake router address
-        router = IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
+        // router = IDEXRouter(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
         
         // Mainnet pancake router address
-        // router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        router = IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
         // _allowances[address(this)][address(router)] = uint256(-1);
