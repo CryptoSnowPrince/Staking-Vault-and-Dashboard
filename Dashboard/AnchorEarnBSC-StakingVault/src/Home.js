@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import InputRange from "react-input-range";
 import "react-input-range/lib/css/index.css";
 import {
@@ -20,23 +20,9 @@ export default function Home(props) {
   const [stakingTime, setStakingTime] = useState(MAXVALUE);
   const [tokenAmount, setTokenAmount] = useState();
   const [stakeFlag, setStakeFlag] = useState(true);
-  const [timeString, setTimeString] = useState("0 Days");
-
-  const [clock, setClock] = useState(0);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setClock(clock + 1);
-      setTimeString(getRemainDateTime(props.remainTimeToUnlock - clock));
-    }, 1000);
-  }, [clock]);
-
-  useEffect(() => {
-    setClock(0);
-  }, [props.remainTimeToUnlock]);
 
   const setTokenAmountMax = (e) => {
-    if (stakeFlag == true) {
+    if (stakeFlag === true) {
       props.web3Provider
         ? setTokenAmount(
             props.balanceAEB > config.MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS
@@ -48,27 +34,6 @@ export default function Home(props) {
     }
   };
 
-  const getRemainDateTime = (second) => {
-    let remain = parseInt(second);
-    if (remain <= 0) return "0 Days";
-    const day = parseInt(remain / 86400);
-    remain = remain - day * 86400;
-    console.log(`r:${remain}`);
-    if (day > 0) {
-      if (remain > 1) {
-        return (day + 1).toString() + " Days";
-      }
-      return day.toString() + " Days";
-    }
-    const hour = parseInt(remain / 3600);
-    remain = remain - hour * 3600;
-    if (hour > 0) {
-      return (hour + 1).toString() + " Hours";
-    }
-    const mins = parseInt(remain / 60);
-    remain = remain - mins * 60;
-    return mins + ":" + remain;
-  };
   return (
     <>
       <div className="d-flex height-100">
@@ -269,7 +234,7 @@ export default function Home(props) {
                       <sub>Your Until tokens Unlock</sub>
                     </div>
                     <div>
-                      <sub>{props.web3Provider ? timeString : "0 Days"}</sub>
+                      <sub>{props.web3Provider ? props.timeString : "0 Days"}</sub>
                     </div>
                   </div>
                 </div>

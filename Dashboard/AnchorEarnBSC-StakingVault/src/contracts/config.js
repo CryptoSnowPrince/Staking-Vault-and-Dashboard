@@ -26,7 +26,7 @@ const config = {
   chainID: 97,
 };
 
-const Units = {
+export const Units = {
   0: "noether",
   1: "wei",
   3: "kwei",

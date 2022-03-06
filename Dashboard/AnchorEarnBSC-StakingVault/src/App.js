@@ -2,13 +2,13 @@ import React, { useEffect, useState, useCallback, useReducer } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { providers, ethers } from "ethers";
+import { providers/*, ethers*/ } from "ethers";
 import Web3 from "web3";
 import config from "./contracts/config";
 import anchorEarnBSCABI from "./contracts/abi/AnchorEarnBSC.json";
 import stakingVaultABI from "./contracts/abi/StakingVault.json";
 import Home from "./Home";
-import { parseEther, parseUnits } from "ethers/lib/utils";
+// import { parseEther, parseUnits } from "ethers/lib/utils";
 
 const CLAIM_FEE = 0.0003;
 const PENALTY_FEE = 0.003;
@@ -46,6 +46,28 @@ const getAddress = (address) => {
 
 const getStakingAPR = (address) => {
   return 365;
+};
+
+const getRemainDateTime = (second) => {
+  let remain = parseInt(second);
+  if (remain <= 0) return "0 Days";
+  const day = parseInt(remain / 86400);
+  remain = remain - day * 86400;
+  // console.log(`r:${remain}`);
+  if (day > 0) {
+    if (remain > 1) {
+      return (day + 1).toString() + " Days";
+    }
+    return day.toString() + " Days";
+  }
+  const hour = parseInt(remain / 3600);
+  remain = remain - hour * 3600;
+  if (hour > 0) {
+    return (hour + 1).toString() + " Hours";
+  }
+  const mins = parseInt(remain / 60);
+  remain = remain - mins * 60;
+  return mins + ":" + remain;
 };
 
 function reducer(state, action) {
@@ -92,7 +114,8 @@ const App = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // const [timeup, setTimeup] = useState(false);
+  const [clock, setClock] = useState(0);
+  const [timeString, setTimeString] = useState("0 Days");
 
   const [balanceAEB, setBalanceAEB] = useState(0);
   const [stakedBalanceAEB, setStakedBalanceAEB] = useState(0);
@@ -101,12 +124,7 @@ const App = () => {
 
   // const [contractState, setContractState] = useState("");
 
-  const { provider, web3Provider, address, chainId } = state;
-
-  // setTimeout(() => {
-  //   const set = !timeup;
-  //   setTimeup(set);
-  // }, 5000);
+  const { provider, web3Provider } = state;
 
   const connect = useCallback(async function () {
     try {
@@ -202,22 +220,9 @@ const App = () => {
     }
   }, [provider]);
 
-  // useEffect(async () => {
-  //   // try {
-  //   //   const balance = await AEBContract.methods.balanceOf(account).call();
-  //   //   const stakerInfo = await StakingContract.methods
-  //   //     .userInfo_(account)
-  //   //     .call();
-  //   //   setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
-  //   //   setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
-  //   //   const remainTime = (stakerInfo.endStakeTime - Date.now()/1000)/86400;
-  //   //   setRemainTimeToUnlock(remainTime);
-  //   // } catch (error) {
-  //   //   console.log(`${error}`);
-  //   // }
-  // }, [contractState, state, timeup]);
-
   const handleApprove = async (tokenAmount) => {
+    // console.log(parseFloat(tokenAmount));
+    if (parseFloat(tokenAmount) <= 0 || isNaN(parseFloat(tokenAmount))) return;
     try {
       const result = await AEBContract.methods
         .approve(
@@ -234,6 +239,8 @@ const App = () => {
     }
   };
   const handleStake = async (tokenAmount, stakingTime) => {
+    // console.log(parseFloat(tokenAmount));
+    if (parseFloat(tokenAmount) <= 0 || parseFloat(tokenAmount) === NaN) return;
     try {
       const result = await StakingContract.methods
         .stakeAEB(
@@ -272,9 +279,9 @@ const App = () => {
     }
   };
 
-  const handleClaimStakingReward = async () => {
-    console.log(handleClaimStakingReward);
-  };
+  // const handleClaimStakingReward = async () => {
+  //   // console.log(handleClaimStakingReward);
+  // };
 
   const handleBUSDReward = async () => {
     init();
@@ -296,6 +303,8 @@ const App = () => {
   };
 
   const init = async () => {
+    // console.log(`init`);
+    setClock(0);
     try {
       const balance = await AEBContract.methods.balanceOf(account).call();
       const allowanceAmount = await AEBContract.methods
@@ -315,9 +324,22 @@ const App = () => {
     }
   };
 
+  let timer;
+  useEffect(() => {
+    init();
+    clearInterval(timer);
+    timer = setInterval(() => {
+      setClock((prevState) => prevState + 1);
+    }, 1000);
+  }, []);
+
   useEffect(() => {
     init();
   }, [state]);
+
+  useEffect(() => {
+    setTimeString(getRemainDateTime(remainTimeToUnlock - clock));
+  }, [clock]);
 
   return (
     <>
@@ -332,9 +354,9 @@ const App = () => {
         web3Provider={web3Provider}
         balanceAEB={balanceAEB}
         stakedBalanceAEB={stakedBalanceAEB}
-        remainTimeToUnlock={remainTimeToUnlock}
         stakingAPR={getStakingAPR()}
         allowanceAmount={allowanceAmount}
+        timeString={timeString}
       />
     </>
   );
