@@ -1,12 +1,12 @@
 const config = {
   AnchorEarnBSC: {
     0: "0x0000000000000000000000000000000000000000",
-    56: "",
+    56: "0x0EA7C4c6A230e091e930b0E6fD9D5c18a6699Cbc",
     97: "0x80de92df50F270e49bb4E269502D00cAB753A55a",
   },
   StakingVault: {
     0: "0x0000000000000000000000000000000000000000",
-    56: "",
+    56: "0x8355179C4e5b37101514181Efb87BDDA11b6D23f",
     97: "0xd6861aB260a8c2f060d3E541Df7696dDBC9AB682",
   },
   BlockExplorerURL: {
@@ -23,7 +23,7 @@ const config = {
   },
   MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS: 10000,
   INFURA_ID: "88b3ca144c6648df843909df0371ee08",
-  chainID: 97,
+  chainID: 56,
 };
 
 export const Units = {
