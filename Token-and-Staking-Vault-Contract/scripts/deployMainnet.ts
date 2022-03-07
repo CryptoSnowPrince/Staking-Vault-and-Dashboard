@@ -16,8 +16,8 @@ async function main() {
   // We get the contract to deploy
   // Mainnet
   const Router = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // Mainnet pancake router address
-  const StakingVault = "0xE50E943Bd7987fC5E82bce3610762b945303f04A"; // Temp Address
-  const RewardWallet = "0x474eE70C12Aa25eBDA5b606568B8c4AB9Da550B7";
+  const StakingVault_addr = "0xE50E943Bd7987fC5E82bce3610762b945303f04A"; // Temp Address
+  const RewardWallet_addr = "0x474eE70C12Aa25eBDA5b606568B8c4AB9Da550B7";
 
   const DividendDistributor = await ethers.getContractFactory("DividendDistributor");
   const dividendDistributor = await DividendDistributor.deploy(Router);
@@ -27,7 +27,7 @@ async function main() {
   console.log("DividendDistributor deployed to:", dividendDistributor.address);
 
   const AnchorEarnBSC = await ethers.getContractFactory("AnchorEarnBSC");
-  const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault, RewardWallet);
+  const anchorEarnBSC = await AnchorEarnBSC.deploy(StakingVault_addr, RewardWallet_addr);
 
   await anchorEarnBSC.deployed();
 
