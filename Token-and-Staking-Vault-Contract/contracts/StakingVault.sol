@@ -47,15 +47,10 @@ contract StakingVault is Ownable {
     // Constant
     //--------------------------------------
 
-    // Testnet Address
-    // IBEP20 constant BUSD                                    = IBEP20(0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7);
-    // address payable constant TREASURY_WALLET                = payable(0x821965C1fD8B60D4B33E23C5832E2A7662faAADC);
-    // address constant REWARD_TOKEN_WALLET                    = 0x36285fDa2bE8a96fEb1d763CA77531D696Ae3B0b;
-
     // Mainnet Address
-    address constant BUSD                               = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    address payable constant TREASURY_WALLET            = payable();
-    address constant REWARD_TOKEN_WALLET                = ;
+    IBEP20 constant BUSD                                = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    address payable constant TREASURY_WALLET            = payable(0x67D011931c2Ec0B2af7287B5985EcF0Fc4be9319);
+    address constant REWARD_TOKEN_WALLET                = 0x474eE70C12Aa25eBDA5b606568B8c4AB9Da550B7;
 
     // Note: AEB's decimals is 9. Please consider it.
     // CLAIM_FEE = claim_fee / (10 ** 9)
