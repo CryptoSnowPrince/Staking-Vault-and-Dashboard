@@ -24,6 +24,9 @@ const config = {
   MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS: 10000,
   INFURA_ID: "88b3ca144c6648df843909df0371ee08",
   chainID: 56,
+  Website: "https://www.anchorearnbsc.com/",
+  Community: "https://t.me/AnchorEarnBSC",
+  Documentation: "https://read-whitepaper.gitbook.io/anchor-earn-bsc/",
 };
 
 export const Units = {

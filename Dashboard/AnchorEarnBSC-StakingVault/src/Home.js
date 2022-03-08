@@ -56,13 +56,13 @@ export default function Home(props) {
           </div>
           <div className="mt-4 d-flex flex-column align-items-center">
             <div className="mb-3">
-              <a href="/">Website</a>
+              <a href={config.Website}>Website</a>
             </div>
             <div className="mb-3">
-              <a href="/">Community</a>
+              <a href={config.Community}>Community</a>
             </div>
             <div>
-              <a href="/">Documentation</a>
+              <a href={config.Documentation}>Documentation</a>
             </div>
           </div>
         </div>
