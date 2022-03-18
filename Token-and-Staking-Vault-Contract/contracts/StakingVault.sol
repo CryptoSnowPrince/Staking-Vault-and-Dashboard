@@ -44,29 +44,29 @@ contract StakingVault is Ownable {
     }
 
     //--------------------------------------
-    // Constant
+    // 
     //--------------------------------------
 
     // Mainnet Address
-    IBEP20 constant BUSD                                = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    address payable constant TREASURY_WALLET            = payable(0x67D011931c2Ec0B2af7287B5985EcF0Fc4be9319);
-    address constant REWARD_TOKEN_WALLET                = 0x474eE70C12Aa25eBDA5b606568B8c4AB9Da550B7;
+    IBEP20 public BUSD                                = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    address payable public TREASURY_WALLET            = payable(0x67D011931c2Ec0B2af7287B5985EcF0Fc4be9319);
+    address public REWARD_TOKEN_WALLET                = 0x474eE70C12Aa25eBDA5b606568B8c4AB9Da550B7;
 
     // Note: AEB's decimals is 9. Please consider it.
     // CLAIM_FEE = claim_fee / (10 ** 9)
-    uint256 constant CLAIM_FEE                          = 3 * 10**(14 - 9);   // 0.0003 BNB
+    uint256 public CLAIM_FEE                          = 3 * 10**(14 - 9);   // 0.0003 BNB
     // PENALTY_FEE = penalty_fee / (10 ** 9)
-    uint256 constant PENALTY_FEE                        = 3 * 10**(15 - 9);   // 0.003 BNB PER AEB
+    uint256 public PENALTY_FEE                        = 3 * 10**(15 - 9);   // 0.003 BNB PER AEB
     // MAX_STAKE_AMOUNT_PER_USER * (10 ** decimals)
-    uint256 constant MAX_STAKE_AMOUNT_PER_USER          = 10000 * (10 ** 9);
-    uint256 constant STAKING_TIME_UNIT                  = 1 days;
-
+    uint256 public MAX_STAKE_AMOUNT_PER_USER          = 10000 * (10 ** 9);
+    uint256 public STAKING_TIME_UNIT                  = 1 days;
+    
     /**
      * staking rewards = 
      *  StakedAmount * (end.block.number - start.block.number)
      *  / RewardRatePerBlockPerToken
      */
-    uint256 constant RewardRatePerBlockPerToken         = 2880000;
+    uint256 public RewardRatePerBlockPerToken         = 2880000;
     
     //--------------------------------------
     // State variables
@@ -84,6 +84,14 @@ contract StakingVault is Ownable {
     // EVENTS
     //-------------------------------------------------------------------------
 
+    event LogBUSD(address indexed BUSD);
+    event LogTREASURY(address indexed TREASURY);
+    event LogRewardTokenWallet(address indexed RewardTokenWallet);   
+    event LogClaimFee(uint256 ClaimFee);
+    event LogPenaltyFee(uint256 PenaltyFee);
+    event LogMaxStakeAmountPerUser(uint256 MaxStakeAmountPerUser);
+    event LogStakingTimeUnit(uint256 StakingTimeUnit);
+    event LogRewardRatePerBlockPerToken(uint256 RewardRatePerBlockPerToken);
     event LogAEB(address indexed AEB);
     event LogMinStakingTime(uint16 minStakingTime);
     event LogMaxStakingTime(uint16 maxStakingTime);
@@ -116,6 +124,54 @@ contract StakingVault is Ownable {
     //-------------------------------------------------------------------------
     // FUNCTIONS
     //-------------------------------------------------------------------------
+    
+    function setBUSD(address _busd) external onlyOwner {
+        require(_busd != address(0), "Zero Address");
+        BUSD = IBEP20(_busd);
+        emit LogBUSD(_busd);
+    }
+
+    function setTREASURY(address _treasury) external onlyOwner {
+        require(_treasury != address(0), "Zero Address");
+        TREASURY_WALLET = payable(_treasury);
+        emit LogTREASURY(_treasury);
+    }
+    
+    function setRewardTokenWallet(address _rewardTokenWallet) external onlyOwner {
+        require(_rewardTokenWallet != address(0), "Zero Address");
+        REWARD_TOKEN_WALLET = _rewardTokenWallet;
+        emit LogRewardTokenWallet(_rewardTokenWallet);
+    }
+
+    function setClaimFee(uint256 _claimFee) external onlyOwner {
+        require(_claimFee > 0, "Zero Value");
+        CLAIM_FEE = _claimFee;
+        emit LogClaimFee(_claimFee);
+    }
+
+    function setPenaltyFee(uint256 _penaltyFee) external onlyOwner {
+        require(_penaltyFee > 0, "Zero Value");
+        PENALTY_FEE = _penaltyFee;
+        emit LogPenaltyFee(_penaltyFee);
+    }
+
+    function setMaxStakeAmountPerUser(uint256 _maxStakeAmountPerUser) external onlyOwner {
+        require(_maxStakeAmountPerUser > 0, "Zero Value");
+        MAX_STAKE_AMOUNT_PER_USER = _maxStakeAmountPerUser;
+        emit LogMaxStakeAmountPerUser(_maxStakeAmountPerUser);
+    }
+
+    function setStakingTimeUnit(uint256 _stakingTimeUnit) external onlyOwner {
+        require(_stakingTimeUnit > 0, "Zero Value");
+        STAKING_TIME_UNIT = _stakingTimeUnit;
+        emit LogStakingTimeUnit(_stakingTimeUnit);
+    }
+    
+    function setRewardRatePerBlockPerToken(uint256 _rewardRatePerBlockPerToken) external onlyOwner {
+        require(_rewardRatePerBlockPerToken > 0, "Zero Value");
+        RewardRatePerBlockPerToken = _rewardRatePerBlockPerToken;
+        emit LogRewardRatePerBlockPerToken(_rewardRatePerBlockPerToken);
+    }
 
     function setAEB(address _token) external onlyOwner {
         require(_token != address(0), "Zero Address");
