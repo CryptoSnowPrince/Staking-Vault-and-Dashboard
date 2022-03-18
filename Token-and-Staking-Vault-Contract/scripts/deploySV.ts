@@ -14,8 +14,8 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  // for only testnet
-  const AEB_addr = "0x80de92df50F270e49bb4E269502D00cAB753A55a";
+  // switch mainnet
+  const AEB_addr = "0x0EA7C4c6A230e091e930b0E6fD9D5c18a6699Cbc";
 
   const StakingVault = await ethers.getContractFactory("StakingVault");
   const stakingVault = await StakingVault.deploy(AEB_addr);
