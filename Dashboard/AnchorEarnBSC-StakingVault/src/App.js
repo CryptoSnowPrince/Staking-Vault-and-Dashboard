@@ -315,8 +315,10 @@ const App = () => {
         .call();
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
       setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
+      const pendingBlock = await web3WSS.eth.getBlock("pending");
+      console.log("pendingBlock timestamp: ", pendingBlock.timestamp);
       const remainTime =
-        stakerInfo.amount > 0 ? stakerInfo.endStakeTime - Date.now() / 1000 : 0;
+        stakerInfo.amount > 0 ? stakerInfo.endStakeTime - pendingBlock.timestamp : 0;
       setRemainTimeToUnlock(remainTime);
       setAllowanceAmount(web3.utils.fromWei(allowanceAmount, "Gwei"));
     } catch (error) {
