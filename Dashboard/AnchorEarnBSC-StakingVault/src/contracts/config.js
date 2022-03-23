@@ -9,6 +9,10 @@ const config = {
     56: "0x07CD66cdc4571aAb645D4819E3A91F61D847792E",
     97: "0xd6861aB260a8c2f060d3E541Df7696dDBC9AB682",
   },
+  BUSD: {
+    56: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    97: "0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7",
+  },
   BlockExplorerURL: {
     56: "https://bscscan.com",
     97: "https://testnet.bscscan.com",

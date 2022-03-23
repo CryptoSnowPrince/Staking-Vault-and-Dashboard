@@ -7,6 +7,7 @@ import Web3 from "web3";
 import config from "./contracts/config";
 import anchorEarnBSCABI from "./contracts/abi/AnchorEarnBSC.json";
 import stakingVaultABI from "./contracts/abi/StakingVault.json";
+import busdABI from "./contracts/abi/BUSD.json";
 import Home from "./Home";
 // import { parseEther, parseUnits } from "ethers/lib/utils";
 
@@ -106,6 +107,10 @@ const StakingContract = new web3.eth.Contract(
   stakingVaultABI,
   getAddress(config.StakingVault)
 );
+const BusdContract = new web3.eth.Contract(
+  busdABI,
+  getAddress(config.BUSD)
+)
 
 const App = () => {
   const [showAccountAddress, setShowAccountAddress] = useState("");
@@ -288,6 +293,11 @@ const App = () => {
     if (stakedBalanceAEB <= 0) {
       alert(`You can't get BUSD Reward because there is not staked token.`);
       return;
+    }
+    const busdamount = await BusdContract.methods.balanceOf(getAddress(config.StakingVault)).call();
+    if(web3.utils.fromWei(busdamount, "ether") < 1) {
+      console.log("busdamount: ", busdamount);
+      alert(`You can't get enough BUSD Reward, so you can lost your transaction fee...`);
     }
     try {
       const result = await StakingContract.methods.claimBusdReward().send({
