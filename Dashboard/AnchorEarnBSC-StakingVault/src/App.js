@@ -14,21 +14,22 @@ import Home from "./Home";
 const CLAIM_FEE = 0.0003;
 const PENALTY_FEE = 0.003;
 
-const providerOptions = {
-  walletconnect: {
-    package: WalletConnectProvider, // required
-    options: {
-      infuraId: config.INFURA_ID, // required
-    },
-  },
-};
-
 let web3Modal;
 if (typeof window !== "undefined") {
   web3Modal = new Web3Modal({
     network: "mainnet", // optional
     cacheProvider: true,
-    providerOptions, // required
+    providerOptions: {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          infuraId: config.INFURA_ID, // required
+          rpc: {
+            56: config.RpcURL[config.chainID],
+          },
+        },
+      },
+    }, // required
     theme: "dark",
   });
 }
@@ -98,24 +99,10 @@ function reducer(state, action) {
   }
 }
 
-const web3 = new Web3(window.ethereum);
-const AEBContract = new web3.eth.Contract(
-  anchorEarnBSCABI,
-  getAddress(config.AnchorEarnBSC)
-);
-const StakingContract = new web3.eth.Contract(
-  stakingVaultABI,
-  getAddress(config.StakingVault)
-);
-const BusdContract = new web3.eth.Contract(
-  busdABI,
-  getAddress(config.BUSD)
-)
-
 const App = () => {
   const [showAccountAddress, setShowAccountAddress] = useState("");
   const [account, setAccount] = useState("");
-  const [signer, setSigner] = useState();
+  // const [signer, setSigner] = useState();
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -126,8 +113,6 @@ const App = () => {
   const [stakedBalanceAEB, setStakedBalanceAEB] = useState(0);
   const [remainTimeToUnlock, setRemainTimeToUnlock] = useState(0);
   const [allowanceAmount, setAllowanceAmount] = useState(0);
-
-  // const [contractState, setContractState] = useState("");
 
   const { provider, web3Provider } = state;
 
@@ -141,7 +126,7 @@ const App = () => {
           params: [{ chainId: config.chainHexID[config.chainID] }], // chainId must be in hexadecimal numbers
         });
       } else {
-        alert(
+        console.log(
           "MetaMask is not installed. Please consider installing it: https://metamask.io/download.html"
         );
       }
@@ -150,9 +135,10 @@ const App = () => {
       const signer = web3Provider.getSigner();
       const account = await signer.getAddress();
       const network = await web3Provider.getNetwork();
+
       const show_address =
         account.slice(0, 5) + "..." + account.slice(-4, account.length);
-      setSigner(web3Provider.getSigner());
+      // setSigner(web3Provider.getSigner());
       setShowAccountAddress(show_address);
       setAccount(account);
       dispatch({
@@ -185,7 +171,7 @@ const App = () => {
   }, []);
   const disconnect = useCallback(async function () {
     await web3Modal.clearCachedProvider();
-    setSigner(null);
+    // setSigner(null);
     setShowAccountAddress(null);
     setAccount(null);
     dispatch({
@@ -229,7 +215,12 @@ const App = () => {
     // console.log(parseFloat(tokenAmount));
     if (parseFloat(tokenAmount) <= 0 || isNaN(parseFloat(tokenAmount))) return;
     try {
-      const result = await AEBContract.methods
+      const web3 = new Web3(provider);
+      const AEBContract = new web3.eth.Contract(
+        anchorEarnBSCABI,
+        getAddress(config.AnchorEarnBSC)
+      );
+      await AEBContract.methods
         .approve(
           config.StakingVault[config.chainID],
           web3.utils.toWei(parseFloat(tokenAmount).toString(), "Gwei")
@@ -245,9 +236,14 @@ const App = () => {
   };
   const handleStake = async (tokenAmount, stakingTime) => {
     // console.log(parseFloat(tokenAmount));
-    if (parseFloat(tokenAmount) <= 0 || parseFloat(tokenAmount) === NaN) return;
+    if (parseFloat(tokenAmount) <= 0 || isNaN(parseFloat(tokenAmount))) return;
     try {
-      const result = await StakingContract.methods
+      const web3 = new Web3(provider);
+      const StakingContract = new web3.eth.Contract(
+        stakingVaultABI,
+        getAddress(config.StakingVault)
+      );
+      await StakingContract.methods
         .stakeAEB(
           web3.utils.toWei(parseFloat(tokenAmount).toString(), "Gwei"),
           parseInt(stakingTime)
@@ -262,6 +258,7 @@ const App = () => {
     }
   };
   const handleUnstake = async () => {
+    // alert(`Success! handleUnstake`);
     init();
     if (stakedBalanceAEB <= 0) {
       alert(`There is not staked token.`);
@@ -271,7 +268,12 @@ const App = () => {
       stakedBalanceAEB *
       (remainTimeToUnlock > 0 ? CLAIM_FEE + PENALTY_FEE : CLAIM_FEE);
     try {
-      const result = await StakingContract.methods.unstakeAEB().send({
+      const web3 = new Web3(provider);
+      const StakingContract = new web3.eth.Contract(
+        stakingVaultABI,
+        getAddress(config.StakingVault)
+      );
+      await StakingContract.methods.unstakeAEB().send({
         from: account,
         value: web3.utils.toWei(Number(feeValue).toString(), "ether"),
       });
@@ -285,7 +287,7 @@ const App = () => {
   };
 
   // const handleClaimStakingReward = async () => {
-  //   // console.log(handleClaimStakingReward);
+  //   console.log(handleClaimStakingReward);
   // };
 
   const handleBUSDReward = async () => {
@@ -294,13 +296,23 @@ const App = () => {
       alert(`You can't get BUSD Reward because there is not staked token.`);
       return;
     }
+    const web3 = new Web3(provider);
+    const BusdContract = new web3.eth.Contract(
+      busdABI,
+      getAddress(config.BUSD)
+    )
     const busdamount = await BusdContract.methods.balanceOf(getAddress(config.StakingVault)).call();
-    if(web3.utils.fromWei(busdamount, "ether") < 1) {
-      console.log("busdamount: ", busdamount);
+    if (web3.utils.fromWei(busdamount, "ether") < 1) {
+      // console.log("busdamount: ", busdamount);
       alert(`You can't get enough BUSD Reward, so you can lost your transaction fee...`);
     }
     try {
-      const result = await StakingContract.methods.claimBusdReward().send({
+      const web3 = new Web3(provider);
+      const StakingContract = new web3.eth.Contract(
+        stakingVaultABI,
+        getAddress(config.StakingVault)
+      );
+      await StakingContract.methods.claimBusdReward().send({
         from: account,
       });
       init();
@@ -316,6 +328,15 @@ const App = () => {
     // console.log(`init`);
     setClock(0);
     try {
+      const web3 = new Web3(provider);
+      const AEBContract = new web3.eth.Contract(
+        anchorEarnBSCABI,
+        getAddress(config.AnchorEarnBSC)
+      );
+      const StakingContract = new web3.eth.Contract(
+        stakingVaultABI,
+        getAddress(config.StakingVault)
+      );
       const balance = await AEBContract.methods.balanceOf(account).call();
       const allowanceAmount = await AEBContract.methods
         .allowance(account, config.StakingVault[config.chainID])
@@ -326,7 +347,7 @@ const App = () => {
       setBalanceAEB(web3.utils.fromWei(balance, "Gwei"));
       setStakedBalanceAEB(web3.utils.fromWei(stakerInfo.amount, "Gwei"));
       const pendingBlock = await web3.eth.getBlock("pending");
-      console.log("pendingBlock timestamp: ", pendingBlock.timestamp);
+      // console.log("pendingBlock timestamp: ", pendingBlock.timestamp);
       const remainTime =
         stakerInfo.amount > 0 ? stakerInfo.endStakeTime - pendingBlock.timestamp : 0;
       setRemainTimeToUnlock(remainTime);
