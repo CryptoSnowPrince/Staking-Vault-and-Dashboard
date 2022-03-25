@@ -25,10 +25,10 @@ export default function Home(props) {
     if (stakeFlag === true) {
       props.web3Provider
         ? setTokenAmount(
-            props.balanceAEB > config.MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS
-              ? config.MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS
-              : props.balanceAEB
-          )
+          props.balanceAEB > config.MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS
+            ? config.MAX_STAKE_AMOUNT_PER_USER_DIV_DECIMALS
+            : props.balanceAEB
+        )
         : setTokenAmount(0);
       // : NotificationManager.info("Please connect wallet!");
     }
@@ -83,6 +83,7 @@ export default function Home(props) {
               {props.web3Provider ? (
                 <button
                   className="header-connect-wallet-btn"
+                  disabled={props.pendingTx}
                   onClick={props.disconnect}
                 >
                   {props.showAccountAddress}
@@ -90,6 +91,7 @@ export default function Home(props) {
               ) : (
                 <button
                   className="header-connect-wallet-btn"
+                  disabled={props.pendingTx}
                   onClick={props.connect}
                 >
                   Connect Wallet
@@ -163,6 +165,7 @@ export default function Home(props) {
                     </div>
                     <button
                       className="primary-button fixed-width-button-150"
+                      disabled={props.pendingTx}
                       onClick={
                         stakeFlag === true
                           ? props.allowanceAmount < parseFloat(tokenAmount)
@@ -241,6 +244,7 @@ export default function Home(props) {
                 <div className="text-center">
                   <button
                     className="primary-button mt-4 w-75"
+                    disabled={props.pendingTx}
                     onClick={props.handleBUSDReward}
                   >
                     Collect BUSD Rewards

@@ -114,6 +114,8 @@ const App = () => {
   const [remainTimeToUnlock, setRemainTimeToUnlock] = useState(0);
   const [allowanceAmount, setAllowanceAmount] = useState(0);
 
+  const [pendingTx, setPendingTx] = useState(false);
+
   const { provider, web3Provider } = state;
 
   const connect = useCallback(async function () {
@@ -214,6 +216,7 @@ const App = () => {
   const handleApprove = async (tokenAmount) => {
     // console.log(parseFloat(tokenAmount));
     if (parseFloat(tokenAmount) <= 0 || isNaN(parseFloat(tokenAmount))) return;
+    setPendingTx(true);
     try {
       const web3 = new Web3(provider);
       const AEBContract = new web3.eth.Contract(
@@ -233,10 +236,12 @@ const App = () => {
       );
       console.log(`${error}`);
     }
+    setPendingTx(false);
   };
   const handleStake = async (tokenAmount, stakingTime) => {
     // console.log(parseFloat(tokenAmount));
     if (parseFloat(tokenAmount) <= 0 || isNaN(parseFloat(tokenAmount))) return;
+    setPendingTx(true);
     try {
       const web3 = new Web3(provider);
       const StakingContract = new web3.eth.Contract(
@@ -256,6 +261,7 @@ const App = () => {
       );
       console.log(`${error}`);
     }
+    setPendingTx(false);
   };
   const handleUnstake = async () => {
     // alert(`Success! handleUnstake`);
@@ -264,6 +270,7 @@ const App = () => {
       alert(`There is not staked token.`);
       return;
     }
+    setPendingTx(true);
     const feeValue =
       stakedBalanceAEB *
       (remainTimeToUnlock > 0 ? CLAIM_FEE + PENALTY_FEE : CLAIM_FEE);
@@ -284,6 +291,7 @@ const App = () => {
       );
       console.log(`${error}`);
     }
+    setPendingTx(false);
   };
 
   // const handleClaimStakingReward = async () => {
@@ -296,6 +304,7 @@ const App = () => {
       alert(`You can't get BUSD Reward because there is not staked token.`);
       return;
     }
+    setPendingTx(true);
     const web3 = new Web3(provider);
     const BusdContract = new web3.eth.Contract(
       busdABI,
@@ -322,6 +331,7 @@ const App = () => {
       );
       console.log(`${error}`);
     }
+    setPendingTx(false);
   };
 
   const init = async () => {
@@ -390,6 +400,7 @@ const App = () => {
         stakingAPR={getStakingAPR()}
         allowanceAmount={allowanceAmount}
         timeString={timeString}
+        pendingTx={pendingTx}
       />
     </>
   );
