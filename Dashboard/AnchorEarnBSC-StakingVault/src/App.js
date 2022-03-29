@@ -304,7 +304,6 @@ const App = () => {
       alert(`You can't get BUSD Reward because there is not staked token.`);
       return;
     }
-    setPendingTx(true);
     const web3 = new Web3(provider);
     const BusdContract = new web3.eth.Contract(
       busdABI,
@@ -316,6 +315,7 @@ const App = () => {
       alert(`You can't get enough BUSD Reward, so you can lost your transaction fee...`);
       return;
     }
+    setPendingTx(true);
     try {
       const web3 = new Web3(provider);
       const StakingContract = new web3.eth.Contract(
