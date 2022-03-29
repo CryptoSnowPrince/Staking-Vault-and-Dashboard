@@ -311,9 +311,10 @@ const App = () => {
       getAddress(config.BUSD)
     )
     const busdamount = await BusdContract.methods.balanceOf(getAddress(config.StakingVault)).call();
-    if (web3.utils.fromWei(busdamount, "ether") < 100) {
+    if (web3.utils.fromWei(busdamount, "ether") < 300) {
       // console.log("busdamount: ", busdamount);
       alert(`You can't get enough BUSD Reward, so you can lost your transaction fee...`);
+      return;
     }
     try {
       const web3 = new Web3(provider);
